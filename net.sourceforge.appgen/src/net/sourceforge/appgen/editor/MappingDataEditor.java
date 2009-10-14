@@ -1045,12 +1045,6 @@ public class MappingDataEditor extends EditorPart {
 		changeAllFieldSelection();
 	}
 
-	/*
-	private void openError(String title, String message) {
-		MessageDialog.openError(null, title, message);
-	}
-	*/
-
 	public class DataModifyListener implements ValueModifyListener {
 		public void valueModified() {
 			dirty = true;
