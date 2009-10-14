@@ -795,7 +795,6 @@ public class MappingDataEditor extends EditorPart {
 
 		ConnectionInformation connectionInformation = mappingData.getConnectionInformation();
 		GenerationInformation generationInformation = mappingData.getGenerationInformation();
-		
 
 		dataBindingContext.bindValue(SWTObservables.observeSelection(databaseTypeCombo), BeansObservables.observeValue(connectionInformation, "databaseType"), null, null);
 		dataBindingContext.bindValue(SWTObservables.observeText(urlText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "url"), null, null);
