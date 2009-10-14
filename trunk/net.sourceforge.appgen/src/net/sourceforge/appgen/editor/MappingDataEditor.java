@@ -87,7 +87,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -176,8 +175,6 @@ public class MappingDataEditor extends EditorPart {
 	private Button connectionButton;
 	private Button generationButton;
 
-	private ProgressBar progressBar;
-
 	private DataBindingContext dataBindingContext;
 	
 	private boolean dirty;
@@ -216,10 +213,16 @@ public class MappingDataEditor extends EditorPart {
 			}
 		}
 
-		consoleManager.removeConsoles(new IConsole[] { console });
+		if (consoleManager != null) {
+			consoleManager.removeConsoles(new IConsole[] { console });
+		}
 		
 		if (dataBindingContext != null) {
 			dataBindingContext.dispose();
+		}
+		
+		if (imageRegistry != null) {
+			imageRegistry.dispose();
 		}
 	}
 
@@ -244,7 +247,6 @@ public class MappingDataEditor extends EditorPart {
 		createFieldTable(contentComponent);
 		createGenerationInputPart(contentComponent);
 		createGenerationButtonPart(contentComponent);
-		createProgressBarPart(contentComponent);
 
 		contentComponent.pack();
 
@@ -416,8 +418,6 @@ public class MappingDataEditor extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				ConnectionInformation connectionInformation = mappingData.getConnectionInformation();
-				
-				// stream.println(connectionInformation.toString());
 
 				if (!validateConnectionInformation()) {
 					return;
@@ -773,18 +773,6 @@ public class MappingDataEditor extends EditorPart {
 			}
 		});
 
-	}
-
-	private void createProgressBarPart(final Composite contentComponent) {
-		GridData gridData;
-
-		progressBar = new ProgressBar(contentComponent, SWT.SMOOTH);
-		progressBar.setSelection(0);
-		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gridData.horizontalSpan = 3;
-		progressBar.setLayoutData(gridData);
-
-		progressBar.setVisible(false);
 	}
 
 	private void bindValues() {
