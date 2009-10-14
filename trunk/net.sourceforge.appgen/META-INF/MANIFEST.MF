@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Appgen Mapping Editor
+Bundle-SymbolicName: net.sourceforge.appgen;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Activator: net.sourceforge.appgen.Activator
+Bundle-Vendor: Appgen
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.ui.editors,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console,
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.jface.databinding,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-LazyStart: true
+Bundle-ClassPath: .,
+ lib/velocity-1.6.2-dep.jar

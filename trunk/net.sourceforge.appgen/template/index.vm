@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Index</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+</head>
+<body>
+	
+	<h1>Index</h1>
+	
+	<ul>
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+		<li><a href="/${entity.getInstanceName()}.do">${entity.getInstanceName()}</a></li>
+#end
+#end
+	</ul>
+
+</body>
+</html>

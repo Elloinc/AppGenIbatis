@@ -1,0 +1,49 @@
+package ${controller.getFullPackageName()};
+
+#foreach ($declaration in $controller.getImportDeclarations())
+${declaration}
+#end
+
+public class ${controller.getClassName()} extends MultiActionController {
+
+	private ${service.getInterfaceName()} ${service.getInstanceName()};
+
+	public void set${service.getInterfaceName()}(${service.getInterfaceName()} ${service.getInstanceName()}) {
+		this.${service.getInstanceName()} = ${service.getInstanceName()};
+	}
+
+	public ModelAndView list(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		${criteria.getClassName()} ${criteria.getInstanceName()} = new ${criteria.getClassName()}();
+		bind(request, ${criteria.getInstanceName()});
+		
+		List<${entity.getClassName()}> ${entity.getInstanceName()}List = ${service.getInstanceName()}.listOnPage(${criteria.getInstanceName()});
+		
+		ModelAndView mav = new ModelAndView("${entity.getInstanceName()}/list");
+		mav.addObject("${entity.getInstanceName()}List", ${entity.getInstanceName()}List);
+		mav.addObject("${criteria.getInstanceName()}", ${criteria.getInstanceName()});
+		
+		return mav;
+	}
+
+	public ModelAndView detail(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		${criteria.getClassName()} ${criteria.getInstanceName()} = new ${criteria.getClassName()}();
+		bind(request, ${criteria.getInstanceName()});
+			
+${controller.getParseRequestParameterSnippet()}
+		${entity.getClassName()} ${entity.getInstanceName()} = ${service.getInstanceName()}.select(${dao.getPrimaryKeyParameters(false)});
+		
+		ModelAndView mav = new ModelAndView("${entity.getInstanceName()}/detail");
+		mav.addObject("${entity.getInstanceName()}", ${entity.getInstanceName()});
+		mav.addObject("${criteria.getInstanceName()}", ${criteria.getInstanceName()});
+		
+		return mav;
+	}
+
+	public ModelAndView delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+${controller.getParseRequestParameterSnippet()}
+		${service.getInstanceName()}.delete(${dao.getPrimaryKeyParameters(false)});
+		
+		return new ModelAndView("redirect:${entity.getInstanceName()}.do");
+	}
+
+}

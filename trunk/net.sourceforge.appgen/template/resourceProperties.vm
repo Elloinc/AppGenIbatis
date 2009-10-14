@@ -1,0 +1,3 @@
+# file system
+file.uploadTempDir=${outputDir.getPath().replaceAll("[\\]", "/")}/WebContent/upload/temp
+file.uploadSaveDir=${outputDir.getPath().replaceAll("[\\]", "/")}/WebContent/upload/save

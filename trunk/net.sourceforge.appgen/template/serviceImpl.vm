@@ -1,0 +1,39 @@
+package ${service.getClassFullPackageName()};
+
+#foreach ($declaration in $service.getImportDeclarations(true))
+${declaration}
+#end
+
+public class ${service.getClassName()} extends ${service.getSuperClassName()} implements ${service.getInterfaceName()} {
+
+	private ${dao.getInterfaceName()} ${dao.getInstanceName()};
+
+	public void set${dao.getInterfaceName()}(${dao.getInterfaceName()} ${dao.getInstanceName()}) {
+		this.${dao.getInstanceName()} = ${dao.getInstanceName()};
+	}
+
+	public void insert(${entity.getClassName()} ${entity.getInstanceName()}) {
+		${dao.getInstanceName()}.insert(${entity.getInstanceName()});
+	}
+
+	public int update(${entity.getClassName()} ${entity.getInstanceName()}) {
+		return ${dao.getInstanceName()}.update(${entity.getInstanceName()});
+	}
+
+	public int delete(${dao.getPrimaryKeyParameters()}) {
+		return ${dao.getInstanceName()}.delete(${dao.getPrimaryKeyParameters(false)});
+	}
+	
+	public ${entity.getClassName()} select(${dao.getPrimaryKeyParameters()}) {
+		return ${dao.getInstanceName()}.select(${dao.getPrimaryKeyParameters(false)});
+	}
+
+	public List<${entity.getClassName()}> list(${criteria.getClassName()} ${criteria.getInstanceName()}) {
+		return ${dao.getInstanceName()}.list(${criteria.getInstanceName()});
+	}
+	
+	public List<${entity.getClassName()}> listOnPage(${criteria.getClassName()} ${criteria.getInstanceName()}) {
+		return ${dao.getInstanceName()}.listOnPage(${criteria.getInstanceName()});
+	}
+
+}

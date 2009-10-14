@@ -1,0 +1,88 @@
+package ${entity.getFullPackageName()};
+
+#foreach ($declaration in $entity.getImportDeclarations())
+${declaration}
+#end
+
+public class ${entity.getClassName()} implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+#foreach ($field in $entity.getFieldList())
+#if ($field.isCreate())
+	private ${field.getSimpleFieldType()} ${field.getFieldName()};
+
+#end
+#end
+	public ${entity.getClassName()}() {
+	}
+
+#foreach ($field in $entity.getFieldList())
+#if ($field.isCreate())
+	public ${field.getSimpleFieldType()} ${field.getGetterMethodName()}() {
+		return ${field.getFieldName()};
+	}
+
+	public void ${field.getSetterMethodName()}(${field.getSimpleFieldType()} ${field.getFieldName()}) {
+		this.${field.getFieldName()} = ${field.getFieldName()};
+	}
+
+#end
+#end
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isPrimitiveType())
+#if ($field.getFieldType().equals("boolean"))
+		result = prime * result + (${field.getFieldName()} ? 1231 : 1237);
+#elseif ($field.getFieldType().equals("double"))
+		long _${field.getFieldName()} = Double.doubleToLongBits(${field.getFieldName()});
+		result = prime * result + (int) (_${field.getFieldName()} ^ (_${field.getFieldName()} >>> 32));
+#elseif ($field.getFieldType().equals("float"))
+		result = prime * result + Float.floatToIntBits(${field.getFieldName()});
+#elseif ($field.getFieldType().equals("long"))
+		result = prime * result + (int) (${field.getFieldName()} ^ (${field.getFieldName()} >>> 32));
+#else
+		result = prime * result + ${field.getFieldName()};
+#end
+#else
+		result = prime * result + ((${field.getFieldName()} == null) ? 0 : ${field.getFieldName()}.hashCode());
+#end
+#end
+
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final ${entity.getClassName()} other = (${entity.getClassName()}) obj;
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isPrimitiveType())
+		if (${field.getFieldName()} != other.${field.getFieldName()})
+			return false;
+#else
+		if (${field.getFieldName()} == null) {
+			if (other.${field.getFieldName()} != null)
+				return false;
+		} else if (!${field.getFieldName()}.equals(other.${field.getFieldName()}))
+			return false;
+#end
+#end
+
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+${entity.getToStringStatement()}
+	}
+	
+}

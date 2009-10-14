@@ -1,0 +1,64 @@
+package ${dao.getClassFullPackageName()};
+
+#foreach ($declaration in $dao.getImportDeclarations(true))
+${declaration}
+#end
+
+public class ${dao.getClassName()} extends SqlMapClientDaoSupport implements ${dao.getInterfaceName()} {
+
+	public void insert(${entity.getClassName()} ${entity.getInstanceName()}) throws DataAccessException {
+		getSqlMapClientTemplate().insert("${entity.getClassName()}.insert", ${entity.getInstanceName()});
+	}
+
+	public int update(${entity.getClassName()} ${entity.getInstanceName()}) throws DataAccessException {
+		int actualRowsAffected = 1;
+
+		getSqlMapClientTemplate().update("${entity.getClassName()}.update", ${entity.getInstanceName()}, actualRowsAffected);
+
+		return actualRowsAffected;
+	}
+
+	public int delete(${dao.getPrimaryKeyParameters()}) throws DataAccessException {
+		int actualRowsAffected = 1;
+
+#if ($dao.getPrimaryKeyClassName().equals("Map"))
+${dao.getPrimaryKeySnippet()}
+#end
+		getSqlMapClientTemplate().delete("${entity.getClassName()}.delete", ${dao.getParameterVariableName()}, actualRowsAffected);
+
+		return actualRowsAffected;
+	}
+
+	public ${entity.getClassName()} select(${dao.getPrimaryKeyParameters()}) throws DataAccessException {
+#if ($dao.getPrimaryKeyClassName().equals("Map"))
+${dao.getPrimaryKeySnippet()}
+#end
+		return (${entity.getClassName()}) getSqlMapClientTemplate().queryForObject("${entity.getClassName()}.select", ${dao.getParameterVariableName()});
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<${entity.getClassName()}> list(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException {
+		Assert.notNull(${criteria.getInstanceName()}, "${criteria.getInstanceName()} must not be null");
+		
+		return getSqlMapClientTemplate().queryForList("${entity.getClassName()}.list", ${criteria.getInstanceName()});
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<${entity.getClassName()}> listOnPage(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException {
+		Assert.notNull(${criteria.getInstanceName()}, "${criteria.getInstanceName()} must not be null");
+		Assert.notNull(${criteria.getInstanceName()}.getPaging(), "paging must not be null");
+		
+		int totalResults = count(${criteria.getInstanceName()});
+		Paging paging = ${criteria.getInstanceName()}.getPaging();
+		paging.setTotalResults(totalResults);
+		
+		return getSqlMapClientTemplate().queryForList("${entity.getClassName()}.list", ${criteria.getInstanceName()}, paging.getFirstResult(), paging.getMaxResults());
+	}
+
+	public int count(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException {
+		Assert.notNull(${criteria.getInstanceName()}, "${criteria.getInstanceName()} must not be null");
+		
+		return ((Integer) getSqlMapClientTemplate().queryForObject("${entity.getClassName()}.count", ${criteria.getInstanceName()})).intValue();
+	}
+
+}

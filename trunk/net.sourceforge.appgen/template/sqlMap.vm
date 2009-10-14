@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="${entity.getClassName()}">
+
+	<typeAlias alias="${entity.getClassName()}" type="${entity.getFullPackageName()}.${entity.getClassName()}"/>
+	<typeAlias alias="${criteria.getClassName()}" type="${criteria.getFullPackageName()}.${criteria.getClassName()}"/>
+
+	<resultMap id="${entity.getInstanceName()}Result" class="${entity.getClassName()}">
+${sqlMap.getResultMappingList()}
+	</resultMap>
+
+#if ($entity.hasLob())
+	<resultMap id="${entity.getInstanceName()}ListResult" class="${entity.getClassName()}">
+${sqlMap.getResultMappingListExceptLob()}
+	</resultMap>
+	
+#end
+	<insert id="insert" parameterClass="${entity.getClassName()}">
+${sqlMap.getInsert()}
+	</insert>
+
+	<update id="update" parameterClass="${entity.getClassName()}">
+${sqlMap.getUpdate()}
+	</update>
+
+	<delete id="delete" parameterClass="${sqlMap.getPrimaryKeyParameterClassName()}">
+${sqlMap.getDelete()}
+	</delete>
+	
+	<select id="select" parameterClass="${sqlMap.getPrimaryKeyParameterClassName()}" resultMap="${entity.getInstanceName()}Result">
+${sqlMap.getSelect()}
+	</select>
+
+	<sql id="criteriaWhereClause">
+		<dynamic prepend="WHERE">
+		</dynamic>
+	</sql>
+
+#if ($entity.hasLob())
+	<select id="list" parameterClass="${entity.getClassName()}Criteria" resultMap="${entity.getInstanceName()}ListResult">
+${sqlMap.getSelectList()}
+		<include refid="criteriaWhereClause"/>
+${sqlMap.getSelectListOrderByClause()}
+	</select>
+#else
+	<select id="list" parameterClass="${criteria.getClassName()}" resultMap="${entity.getInstanceName()}Result">
+${sqlMap.getSelectList()}
+		<include refid="criteriaWhereClause"/>
+${sqlMap.getSelectListOrderByClause()}
+	</select>
+#end
+
+	<select id="count" parameterClass="${criteria.getClassName()}" resultClass="int">
+${sqlMap.getSelectCount()}
+		<include refid="criteriaWhereClause"/>
+	</select>
+
+</sqlMap>
