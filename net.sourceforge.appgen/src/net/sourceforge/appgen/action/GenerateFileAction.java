@@ -138,7 +138,7 @@ public class GenerateFileAction extends Action {
 					fileGenerator.generateDirectory();
 
 					for (Entity entity : entityList) {
-						monitor.setTaskName("Generate soure files: " + entity.getBaseName());
+						monitor.subTask(fileGenerator.getFile(entity).getPath());
 
 						if (entity.isCreate()) {
 							try {
