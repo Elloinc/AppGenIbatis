@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.sourceforge.net/projects/appgen"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.sourceforge.net/projects/appgen">
+	<xsd:element name="entitygen-data">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="connectionInformation" />
+				<xsd:element ref="generationInformation" />
+				<xsd:element ref="entityList" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="connectionInformation">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="databaseType" />
+				<xsd:element ref="url" />
+				<xsd:element ref="user" />
+				<xsd:element ref="password" />
+				<xsd:element ref="driverFile" />
+				<xsd:element ref="driverClassName" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="databaseType" type="databaseType" />
+	<xsd:simpleType name="databaseType">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="Oracle"/>
+			<xsd:enumeration value="Mysql"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="url" type="xsd:string" />
+	<xsd:element name="user" type="xsd:string" />
+	<xsd:element name="password" type="xsd:string" />
+	<xsd:element name="driverFile" type="xsd:string" />
+	<xsd:element name="driverClassName" type="xsd:string" />
+	<xsd:element name="generationInformation">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="outputDir" />
+				<xsd:element ref="packageName" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="outputDir" type="xsd:string" />
+	<xsd:element name="packageName" type="xsd:string" />
+	<xsd:element name="entityList">
+		<xsd:complexType>
+			<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+				<xsd:element ref="entity" />
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="uniqueBaseName">
+			<xsd:selector xpath="entity" />
+			<xsd:field xpath="@baseName" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="entity">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="fieldList" />
+			</xsd:sequence>
+			<xsd:attributeGroup ref="entityAttributes" />
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:attributeGroup name="entityAttributes">
+		<xsd:attribute name="tableName" type="xsd:string" use="required" />
+		<xsd:attribute name="baseName" type="xsd:ID" use="required" />
+		<xsd:attribute name="create" type="xsd:boolean" default="true" />
+	</xsd:attributeGroup>
+	<xsd:element name="fieldList">
+		<xsd:complexType>
+			<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+				<xsd:element ref="field" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="field">
+		<xsd:complexType>
+			<xsd:attributeGroup ref="fieldAttributes" />
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:attributeGroup name="fieldAttributes">
+		<xsd:attribute name="columnName" type="xsd:string" use="required" />
+		<xsd:attribute name="columnType" type="xsd:string" use="required" />
+		<xsd:attribute name="columnLength" type="xsd:integer" use="required" />
+		<xsd:attribute name="pkPosition" type="xsd:nonNegativeInteger" default="0" />
+		<xsd:attribute name="lob" type="xsd:boolean" default="false" />
+		<xsd:attribute name="fieldName" type="xsd:string" use="required" />
+		<xsd:attribute name="fieldType" type="xsd:string" use="required" />
+		<xsd:attribute name="create" type="xsd:boolean" default="true" />
+	</xsd:attributeGroup>
+</xsd:schema>

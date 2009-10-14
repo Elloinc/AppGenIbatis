@@ -1,0 +1,34 @@
+body {
+/*	background: #ffffff;*/
+	color: #333333;
+}
+
+table, td, th {
+	border-collapse: collapse;
+	border-spacing: 0px;
+	border: 1px;
+	border-style: solid;
+	border-color: #e0e0e0;
+	
+	margin: 0px;
+	padding: 0px;
+}
+
+td {
+	padding: 5px;
+}
+
+th {
+	padding: 5px;
+	background: #efefef;
+}
+
+span.errorMessages {
+	color: red;
+}
+
+span.errorMessage {
+	margin-right: 10px;
+	float: left;
+	color: red;
+}

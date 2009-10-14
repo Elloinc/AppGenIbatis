@@ -1,0 +1,83 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>${entity.getInstanceName()} - write</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<script type="text/javascript">
+	<!--
+		function goEdit() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}Edit.do';
+			f.method = 'get';
+			f.elements["mode"].value = 'edit';
+			f.submit();
+		}
+		
+		function goDelete() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}.do';
+			f.method = 'post';
+			f.elements["mode"].value = 'delete';
+			f.submit();
+		}
+
+		function goList() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}.do';
+			f.method = 'get';
+			f.elements["mode"].value = 'list';
+			f.submit();
+		}
+	//-->
+	</script>
+</head>
+<body>
+	
+	<p><a href="/">home</a></p>
+	
+	<h1>${entity.getClassName()} - detail</h1>
+	
+	<form:form commandName="${criteria.getInstanceName()}" id="${criteria.getInstanceName()}Form" name="${criteria.getInstanceName()}Form" action="/${entity.getInstanceName()}.do" method="get">
+	<input type="hidden" name="mode"/>
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	<form:hidden path="${field.getFieldName()}"/>
+#end
+#end
+	<form:hidden path="paging.currentPage"/>
+	</form:form>
+	
+	<table width="800">
+		<colgroup width="800">
+			<col width="100"/>
+			<col width="*"/>
+		</colgroup>
+#foreach ($field in $entity.getFieldList())
+#if ($field.isCreate())
+		<tr>
+			<th>${field.getFieldName()}</th>
+			<td>
+#if ("java.util.Date" == ($field.getFieldType()))
+				<fmt:formatDate value="${${entity.getInstanceName()}.${field.getFieldName()}}" pattern="yyyy-MM-dd HH:mm:ss"/>
+#else
+				<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}}"/>
+#end
+			</td>
+		</tr>
+#end
+#end
+	</table>
+
+	<p/>
+	
+	<a href="<c:url value='javascript:goEdit();'/>">edit</a>
+	<a href="<c:url value='javascript:goDelete();'/>">delete</a>
+	<a href="<c:url value='javascript:goList();'/>">list</a>
+
+</body>
+</html>

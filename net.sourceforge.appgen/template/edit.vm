@@ -1,0 +1,74 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>${entity.getInstanceName()} - write</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<script type="text/javascript">
+	<!--
+		function goList() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.submit();
+		}
+	//-->
+	</script>
+</head>
+<body>
+	
+	<p><a href="/">home</a></p>
+		
+	<h1>${entity.getClassName()} - edit</h1>
+	
+	<form:form commandName="${criteria.getInstanceName()}" id="${criteria.getInstanceName()}Form" name="${criteria.getInstanceName()}Form" action="/${entity.getInstanceName()}.do" method="get">
+	<input type="hidden" name="mode"/>
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	<form:hidden path="${field.getFieldName()}"/>
+#end
+#end
+	<form:hidden path="paging.currentPage"/>
+	</form:form>
+	
+	<form:form commandName="${entity.getInstanceName()}" name="${entity.getInstanceName()}Form" action="/${entity.getInstanceName()}Edit.do">
+	<input type="hidden" name="mode" value="edit"/>
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	<form:hidden path="${field.getFieldName()}"/>
+#end
+#end
+	<table width="800">
+		<colgroup width="800">
+			<col width="100"/>
+			<col width="*"/>
+		</colgroup>
+#foreach ($field in $entity.getFieldList())
+#if ($field.isCreate())
+		<tr>
+			<th>${field.getFieldName()}</th>
+			<td>
+#if ($field.getPkPosition() > 0)
+				<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}}"/>
+#else
+#if ($field.isLob())
+				<form:textarea path="${field.getFieldName()}" cols="80" rows="10"/>
+#else
+				<form:input path="${field.getFieldName()}"/>
+#end
+				<form:errors path="${field.getFieldName()}" cssClass="errorMessage"/>
+#end
+			</td>
+		</tr>
+#end
+#end
+	</table>
+	<input type="submit" value="edit"/>
+	</form:form>
+
+	<a href="javascript:goList();">list</a>
+
+</body>
+</html>

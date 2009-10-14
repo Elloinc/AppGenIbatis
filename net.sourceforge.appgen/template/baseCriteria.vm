@@ -1,0 +1,43 @@
+package ${baseCriteria.getFullPackageName()};
+
+import java.io.Serializable;
+
+import ${paging.getFullPackageName()}.${paging.getClassName()};
+
+public class ${baseCriteria.getClassName()} implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	protected Paging paging;
+
+	private String mode;
+
+	public ${baseCriteria.getClassName()}() {
+		this(new Paging());
+	}
+
+	public ${baseCriteria.getClassName()}(int maxResults, int pagingLinks) {
+		this(new Paging(maxResults, pagingLinks));
+	}
+
+	public ${baseCriteria.getClassName()}(Paging paging) {
+		this.paging = paging;
+	}
+
+	public Paging getPaging() {
+		return paging;
+	}
+
+	public void setPaging(Paging paging) {
+		this.paging = paging;
+	}
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+
+}

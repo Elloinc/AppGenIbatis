@@ -1,0 +1,79 @@
+package ${formController.getFullPackageName()};
+
+#foreach ($declaration in $formController.getImportDeclarations())
+${declaration}
+#end
+
+public class ${formController.getClassName()} extends SimpleFormController {
+
+	private ${service.getInterfaceName()} ${service.getInstanceName()};
+
+	public void set${service.getInterfaceName()}(${service.getInterfaceName()} ${service.getInstanceName()}) {
+		this.${service.getInstanceName()} = ${service.getInstanceName()};
+	}
+
+	@Override
+	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
+#if ($formController.isCustomDateEditorRequired())
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyyMMdd"), false, 8));
+#end
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected Map referenceData(HttpServletRequest request) throws Exception {
+		String mode = ServletRequestUtils.getRequiredStringParameter(request, "mode");
+		
+		${entity.getClassName()}Criteria ${criteria.getInstanceName()} = new ${entity.getClassName()}Criteria();
+		ServletRequestDataBinder binder = createBinder(request, ${criteria.getInstanceName()});
+		binder.bind(request);
+		
+		Map map = new LinkedHashMap();
+		map.put("mode",  mode);
+		map.put("${criteria.getInstanceName()}", ${criteria.getInstanceName()});
+
+		return map;
+	}
+	
+	@Override
+	protected void onBind(HttpServletRequest request, Object command, BindException errors) throws Exception {
+	}
+	
+	@Override
+	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors) throws Exception {
+	}
+
+	@Override
+	protected Object formBackingObject(HttpServletRequest request) throws Exception {
+		${entity.getClassName()} ${entity.getInstanceName()} = null;
+		
+		String mode = ServletRequestUtils.getRequiredStringParameter(request, "mode");
+
+		if (mode.equals("write")) {
+			${entity.getInstanceName()} = new ${entity.getClassName()}();
+		}
+		
+		if (mode.equals("edit")) {
+${formController.getParseRequestParameterSnippet()}
+			${entity.getInstanceName()} = ${service.getInstanceName()}.select(${dao.getPrimaryKeyParameters(false)});
+		}
+
+		return ${entity.getInstanceName()};
+	}
+
+	@Override
+	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command, BindException errors) throws Exception {
+		String mode = ServletRequestUtils.getRequiredStringParameter(request, "mode");
+		
+		${entity.getClassName()} ${entity.getInstanceName()} = (${entity.getClassName()}) command;
+		
+		if (mode.equals("write")) {
+			${entity.getInstanceName()}Service.insert(${entity.getInstanceName()});
+		} else if (mode.equals("edit")) {
+			${entity.getInstanceName()}Service.update(${entity.getInstanceName()});
+		}
+
+		return new ModelAndView(getSuccessView());
+	}
+
+}

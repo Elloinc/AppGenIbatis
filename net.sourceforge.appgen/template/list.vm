@@ -1,0 +1,117 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%@include file="/WEB-INF/jsp/include/tags.jsp"%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>${entity.getInstanceName()} - list</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css"/>
+	<script type="text/javascript">
+	<!--
+		function goPage(page) {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}.do';
+			f.method = 'get';
+			f.elements["mode"].value = "list";
+			f.elements["paging.currentPage"].value = page;
+			f.submit();
+		}
+		
+		function search() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}.do';
+			f.method = 'get';
+			f.elements["mode"].value = "list";
+			f.elements["paging.currentPage"].value = 0;
+			f.submit();
+		}
+		
+		function goDetail(${dao.getPrimaryKeyParameters(false)}) {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}.do';
+			f.method = 'get';
+			f.elements["mode"].value = "detail";
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+			f.elements["${field.getFieldName()}"].value = ${field.getFieldName()};
+#end
+#end
+			f.submit();
+		}
+		
+		function goWrite() {
+			var f = document.${criteria.getInstanceName()}Form;
+			f.action = '/${entity.getInstanceName()}Write.do';
+			f.method = 'get';
+			f.elements["mode"].value = "write";
+			f.submit();
+		}
+	//-->
+	</script>
+</head>
+<body>
+	
+	<p><a href="/">home</a></p>
+	
+	<h1>${entity.getClassName()} - list</h1>
+	
+	<form:form commandName="${criteria.getInstanceName()}" id="${criteria.getInstanceName()}Form" name="${criteria.getInstanceName()}Form" action="/${entity.getInstanceName()}.do" method="get">
+	<input type="hidden" name="mode"/>
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	<form:hidden path="${field.getFieldName()}"/>
+#end
+#end
+	<form:hidden path="paging.currentPage"/>
+	</form:form>
+	
+	<div>
+		${${criteria.getInstanceName()}.paging.totalResults} results. 
+	</div>
+	
+	<table width="800">
+		<colgroup width="800">
+#foreach ($field in $entity.getFieldListExceptLob())
+			<col width="*"/>
+#end
+		</colgroup>
+		<tr>
+#foreach ($field in $entity.getFieldListExceptLob())
+			<th>${field.getFieldName()}</th>
+#end
+		</tr>
+		<c:forEach var="${entity.getInstanceName()}" items="${${entity.getInstanceName()}List}">
+		<tr>
+#foreach ($field in $entity.getFieldListExceptLob())
+			<td>
+#if ($field.getPkPosition() >= 1)
+				<a href="javascript:goDetail(${jstl.getPkInPageExp()});">
+#end
+#if ("java.util.Date" == ($field.getFieldType()))
+				<fmt:formatDate value="${${entity.getInstanceName()}.${field.getFieldName()}}" pattern="yyyy-MM-dd HH:mm:ss"/>
+#else
+				<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}}"/>
+#end
+#if ($field.getPkPosition() >= 1)
+				</a>
+#end
+			</td>
+#end
+		</tr>
+		</c:forEach>
+	</table>
+	
+	<div>
+	<c:set var="paging" value="${${criteria.getInstanceName()}.paging}"/>
+	<%@ include file="/WEB-INF/jsp/include/paging/default.jsp"%>
+	</div>
+	
+	<p/>
+	
+	<a href="<c:url value='javascript:goWrite();'/>">write</a>
+	<a href="<c:url value='/${entity.getInstanceName()}.do'/>">list</a>
+
+</body>
+</html>

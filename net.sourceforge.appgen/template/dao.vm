@@ -1,0 +1,23 @@
+package ${dao.getInterfaceFullPackageName()};
+
+#foreach ($declaration in $dao.getImportDeclarations(false))
+${declaration}
+#end
+
+public interface ${dao.getInterfaceName()} {
+
+	void insert(${entity.getClassName()} ${entity.getInstanceName()}) throws DataAccessException;
+
+	int update(${entity.getClassName()} ${entity.getInstanceName()}) throws DataAccessException;
+
+	int delete(${dao.getPrimaryKeyParameters()}) throws DataAccessException;
+
+	${entity.getClassName()} select(${dao.getPrimaryKeyParameters()}) throws DataAccessException;
+
+	List<${entity.getClassName()}> list(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException;
+	
+	List<${entity.getClassName()}> listOnPage(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException;
+	
+	int count(${criteria.getClassName()} ${criteria.getInstanceName()}) throws DataAccessException;
+
+}

@@ -1,0 +1,21 @@
+package ${service.getInterfaceFullPackageName()};
+
+#foreach ($declaration in $service.getImportDeclarations(false))
+${declaration}
+#end
+
+public interface ${service.getInterfaceName()} {
+
+	void insert(${entity.getClassName()} ${entity.getInstanceName()});
+
+	int update(${entity.getClassName()} ${entity.getInstanceName()});
+
+	int delete(${dao.getPrimaryKeyParameters()});
+	
+	${entity.getClassName()} select(${dao.getPrimaryKeyParameters()});
+
+	List<${entity.getClassName()}> list(${criteria.getClassName()} ${criteria.getInstanceName()});
+
+	List<${entity.getClassName()}> listOnPage(${criteria.getClassName()} ${criteria.getInstanceName()});
+
+}

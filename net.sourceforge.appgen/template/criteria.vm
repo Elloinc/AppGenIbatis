@@ -1,0 +1,32 @@
+package ${criteria.getFullPackageName()};
+
+#foreach ($declaration in $criteria.getImportDeclarations())
+${declaration}
+#end
+
+public class ${criteria.getClassName()} extends ${criteria.getSuperClassName()} {
+
+	private static final long serialVersionUID = 1L;
+	
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	private ${field.getSimpleFieldType()} ${field.getFieldName()};
+
+#end
+#end
+	public ${criteria.getClassName()}() {
+	}
+
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+#if ($field.isCreate())
+	public ${field.getSimpleFieldType()} ${field.getGetterMethodName()}() {
+		return ${field.getFieldName()};
+	}
+
+	public void ${field.getSetterMethodName()}(${field.getSimpleFieldType()} ${field.getFieldName()}) {
+		this.${field.getFieldName()} = ${field.getFieldName()};
+	}
+
+#end
+#end
+}

@@ -1,0 +1,8 @@
+# database		
+jdbc.driverClassName=${connectionInformation.getDriverClassName()}
+jdbc.url=${connectionInformation.getUrl()}
+jdbc.username=${connectionInformation.getUser()}
+jdbc.password=${connectionInformation.getPassword()}
+jdbc.maxActive=20
+jdbc.maxIdle=5
+jdbc.maxWait=40

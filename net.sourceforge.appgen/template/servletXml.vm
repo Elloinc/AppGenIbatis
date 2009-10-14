@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Property configurer -->
+		
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/properties/jdbc.properties</value>
+				<value>/WEB-INF/properties/resource.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- ApplicationListeners -->
+	
+	<bean id="performanceMonitorListener" class="org.springframework.web.context.support.PerformanceMonitorListener"/>
+	
+	<!-- Method name resolver -->
+	
+	<bean id="methodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName">
+			<value>mode</value>
+		</property>
+		<property name="defaultMethodName">
+			<value>list</value>
+		</property>
+	</bean>
+
+	<!-- Message source -->
+	
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="message"/>
+	</bean>
+
+	<!-- View resolvers -->
+	
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="1"/>
+	</bean>
+	
+	<bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="2"/>
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.JstlView</value>
+		</property>
+		<property name="prefix">
+			<value>/WEB-INF/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+	
+	<!-- Multipart resolver -->
+	
+	<bean id="uploadTempDir" class="org.springframework.core.io.FileSystemResource">
+		<constructor-arg>
+			<value>${file.uploadTempDir}</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="uploadSaveDir" class="org.springframework.core.io.FileSystemResource">
+		<constructor-arg>
+			<value>${file.uploadSaveDir}</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>1000000</value>
+		</property>
+		<property name="uploadTempDir" ref="uploadTempDir"/>
+	</bean>
+
+	<!-- Aop -->
+	
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*"/>
+			<tx:method name="update*"/>
+			<tx:method name="delete*"/>
+			<tx:method name="*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>	
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- Data source -->
+		
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="maxActive" value="${jdbc.maxActive}"/>
+		<property name="maxIdle" value="${jdbc.maxIdle}"/>
+		<property name="maxWait" value="${jdbc.maxWait}"/>
+	</bean>
+
+	<!-- Ibatis -->
+
+	<!--
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
+		<property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
+	</bean>
+	
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor"/>
+	-->
+		
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="WEB-INF/config/sqlmap-config.xml"/>
+		<property name="dataSource" ref="dataSource"/>
+		<!--
+		<property name="lobHandler" ref="lobHandler"/>
+		-->
+	</bean>
+	
+	<bean id="daoTemplate" abstract="true" class="org.springframework.orm.ibatis.support.SqlMapClientDaoSupport">
+		<property name="sqlMapClient" ref="sqlMapClient"/>
+	</bean>
+
+	<!-- Validators -->
+	
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+	<bean id="${entity.getInstanceName()}Validator" class="${entity.getPackageName()}.validator.${entity.getClassName()}Validator"/>
+	
+#end
+#end
+	
+	<!-- Handler mappings -->
+	
+	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="1"/>
+		<property name="mappings">
+			<props>
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+				<prop key="/${entity.getInstanceName()}.do">${entity.getInstanceName()}Controller</prop>
+				<prop key="/${entity.getInstanceName()}Write.do">${entity.getInstanceName()}WriteController</prop>
+				<prop key="/${entity.getInstanceName()}Edit.do">${entity.getInstanceName()}EditController</prop>
+#end
+#end
+			</props>
+		</property>
+	</bean>
+	
+	<!-- Controllers -->
+	
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+	<bean id="${entity.getInstanceName()}Controller" class="${entity.getPackageName()}.web.controller.${entity.getClassName()}Controller">
+		<property name="methodNameResolver" ref="methodNameResolver"/>
+		<property name="${entity.getInstanceName()}Service" ref="${entity.getInstanceName()}Service"/>
+	</bean>
+	
+	<bean id="${entity.getInstanceName()}WriteController" class="${entity.getPackageName()}.web.controller.${entity.getClassName()}FormController">
+		<property name="commandName" value="${entity.getInstanceName()}"/>
+		<property name="commandClass" value="${entity.getFullPackageName()}.${entity.getClassName()}"/>
+		<property name="validators">
+			<list>
+				<ref bean="${entity.getInstanceName()}Validator"/>
+			</list>
+		</property>
+		<property name="formView" value="${entity.getInstanceName()}/write"/>
+		<property name="successView" value="redirect:/${entity.getInstanceName()}.do"/>
+		<property name="${entity.getInstanceName()}Service" ref="${entity.getInstanceName()}Service"/>
+	</bean>
+	
+	<bean id="${entity.getInstanceName()}EditController" class="${entity.getPackageName()}.web.controller.${entity.getClassName()}FormController">
+		<property name="commandName" value="${entity.getInstanceName()}"/>
+		<property name="commandClass" value="${entity.getFullPackageName()}.${entity.getClassName()}"/>
+		<property name="validators">
+			<list>
+				<ref bean="${entity.getInstanceName()}Validator"/>
+			</list>
+		</property>
+		<property name="formView" value="${entity.getInstanceName()}/edit"/>
+		<property name="successView" value="redirect:/${entity.getInstanceName()}.do"/>
+		<property name="${entity.getInstanceName()}Service" ref="${entity.getInstanceName()}Service"/>
+	</bean>
+	
+#end
+#end
+	
+	<!-- Service -->
+
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+	<bean id="${entity.getInstanceName()}Service" class="${entity.getPackageName()}.service.impl.${entity.getClassName()}ServiceImpl">
+		<property name="${entity.getInstanceName()}Dao" ref="${entity.getInstanceName()}Dao"/>
+	</bean>
+	
+#end
+#end
+	<!-- Dao -->
+
+#foreach ($entity in $entityList)
+#if ($entity.isCreate())
+	<bean id="${entity.getInstanceName()}Dao" class="${entity.getPackageName()}.dao.ibatis.${entity.getClassName()}DaoImpl" parent="daoTemplate"/>
+	
+#end
+#end
+</beans>
