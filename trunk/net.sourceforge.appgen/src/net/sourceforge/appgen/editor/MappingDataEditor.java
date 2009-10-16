@@ -113,16 +113,10 @@ public class MappingDataEditor extends EditorPart {
 
 	private static final FieldDecoration DEC_ERROR = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
 
-	private static ImageRegistry imageRegistry = new ImageRegistry();
+	private ImageRegistry imageRegistry;
 
 	public static final String CHECKED_IMAGE = "header_checked";
 	public static final String UNCHECKED_IMAGE = "header_unchecked";
-
-	static {
-		String iconPath = "icon/";
-		imageRegistry.put(CHECKED_IMAGE, ImageDescriptor.createFromFile(MappingDataEditor.class, iconPath + CHECKED_IMAGE + ".gif"));
-		imageRegistry.put(UNCHECKED_IMAGE, ImageDescriptor.createFromFile(MappingDataEditor.class, iconPath + UNCHECKED_IMAGE + ".gif"));
-	}
 
 	MappingData loadMappingData;
 	
@@ -189,6 +183,16 @@ public class MappingDataEditor extends EditorPart {
 		stream = console.newMessageStream();
 		consoleManager.addConsoles(new IConsole[] { console });
 		consoleManager.showConsoleView(console);
+		
+		initImageRegistry();
+	}
+	
+	private void initImageRegistry() {
+		imageRegistry = new ImageRegistry();
+		
+		String iconPath = "icon/";
+		imageRegistry.put(CHECKED_IMAGE, ImageDescriptor.createFromFile(MappingDataEditor.class, iconPath + CHECKED_IMAGE + ".gif"));
+		imageRegistry.put(UNCHECKED_IMAGE, ImageDescriptor.createFromFile(MappingDataEditor.class, iconPath + UNCHECKED_IMAGE + ".gif"));
 	}
 
 	@Override
