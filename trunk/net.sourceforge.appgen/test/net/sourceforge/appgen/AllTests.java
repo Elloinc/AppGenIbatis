@@ -8,6 +8,7 @@ import net.sourceforge.appgen.model.PrimaryKeyFieldComparatorTest;
 import net.sourceforge.appgen.util.ClassNameComparatorTest;
 import net.sourceforge.appgen.util.ConventionUtilsTest;
 import net.sourceforge.appgen.util.FileUtilsTest;
+import net.sourceforge.appgen.xml.XmlDataTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -30,8 +31,10 @@ import org.junit.runners.Suite;
 	// util package
 	ClassNameComparatorTest.class,
 	ConventionUtilsTest.class,
-	FileUtilsTest.class
+	FileUtilsTest.class,
 	
+	// xml package
+	XmlDataTest.class
 })
 public class AllTests {
 }
