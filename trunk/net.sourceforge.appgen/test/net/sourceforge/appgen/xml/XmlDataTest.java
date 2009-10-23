@@ -39,6 +39,9 @@ import net.sourceforge.appgen.model.Field;
 import net.sourceforge.appgen.model.GenerationInformation;
 import net.sourceforge.appgen.model.MappingData;
 
+/**
+ * @author Byeongkil Woo
+ */
 public class XmlDataTest {
 
 	public static String XSD_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema";
