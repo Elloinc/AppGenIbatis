@@ -6,7 +6,6 @@ Bundle-Version: 0.0.1.qualifier
 Bundle-Activator: net.sourceforge.appgen.Activator
 Bundle-Vendor: Appgen
 Require-Bundle: org.eclipse.ui,
- org.eclipse.ui.editors,
  org.eclipse.core.runtime,
  org.eclipse.ui.console,
  org.eclipse.core.databinding,

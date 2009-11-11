@@ -13,13 +13,6 @@ public class ${formController.getClassName()} extends SimpleFormController {
 	}
 
 	@Override
-	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
-#if ($formController.isCustomDateEditorRequired())
-		binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyyMMdd"), false, 8));
-#end
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	protected Map referenceData(HttpServletRequest request) throws Exception {
 		String mode = ServletRequestUtils.getRequiredStringParameter(request, "mode");
@@ -34,11 +27,18 @@ public class ${formController.getClassName()} extends SimpleFormController {
 
 		return map;
 	}
-	
+
+	@Override
+	protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
+#if ($formController.isCustomDateEditorRequired())
+${formController.getInitBinderCustomDateEditor()}
+#end
+	}
+
 	@Override
 	protected void onBind(HttpServletRequest request, Object command, BindException errors) throws Exception {
 	}
-	
+
 	@Override
 	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors) throws Exception {
 	}
