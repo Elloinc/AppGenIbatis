@@ -140,6 +140,27 @@ public class FormController implements Serializable {
 		return false;
 	}
 	
+	public String getInitBinderCustomDateEditor() {
+		return getInitBinderCustomDateEditor("\t\t");
+	}
+	
+	public String getInitBinderCustomDateEditor(String indent) {
+		StringBuffer buffer = new StringBuffer();
+		
+		boolean first = true;
+		for (Field field : entity.getFieldList()) {
+			if (field.isCreate() && Date.class.getName().equals(field.getFieldType())) {
+				if (!first) {
+					buffer.append(FileUtils.ln());
+				}
+				buffer.append(indent + "binder.registerCustomEditor(Date.class, \"" + field.getFieldName() + "\", new CustomDateEditor(new SimpleDateFormat(\"yyyyMMdd\"), false, 8));");
+				first = false;
+			}
+		}
+		
+		return buffer.toString();
+	}
+	
 	public Entity getEntity() {
 		return entity;
 	}

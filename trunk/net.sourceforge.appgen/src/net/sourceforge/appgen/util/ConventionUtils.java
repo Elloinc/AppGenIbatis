@@ -21,27 +21,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.sourceforge.appgen.converter.FirstCharacterUpperCaseConverter;
+import net.sourceforge.appgen.converter.StringConverter;
+
 /**
  * @author Byeongkil Woo
  */
 public abstract class ConventionUtils {
 
+	private static StringConverter firstCharacterUpperCaseConverter = new FirstCharacterUpperCaseConverter();
+	
 	public static final String FIXME = "// FIXME: Entity generator.";
 
 	public static final String[] RESERVED_WORDS = new String[] {
-		// Java language.
+		// Java language -------------------------------------------------------------------------- //
 		"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "continue", "default", "do", "double", "else", 
 		"enum", "extends", "false", "final", "finally", "float", "for", "if", "implements", "import", "instanceof", "int", "interface", 
 		"long", "native", "new", "null", "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super", 
 		"switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while", 
 		"const", "goto", 
-		// Entity generator.
+		// AppGen --------------------------------------------------------------------------------- //
+		"serializable", "serialVersionUID", 
+		"logger", "logFactory", 
+		"obj", "result", "prime", 
+		"assert", "errors", "validationUtils", 
+		"dataAccessException", 
 		"httpServletRequest", "httpServletResponse", 
 		"modelAndView", "servletRequestUtils", "servletRequestUtils", 
 		"servletRequestDataBinder", "binder", "bindException", "errors", "customDateEditor", 
 		"sqlMapClientDaoSupport", 
-		"map", "linkedHashMap", "param", "date", "simpleDateFormat", 
-		"controller", "service", "serviceImpl", "dao", "daoImpl", "criteria", "validator", "paging", 
+		"list", "map", "linkedHashMap", "param", "date", "simpleDateFormat", 
+		"controller", "simpleFormController", "service", "serviceImpl", "dao", "daoImpl", "criteria", "validator", "paging", 
 		"request", "response", "mav", "mode", "totalResults"
 	};
 
@@ -52,7 +62,27 @@ public abstract class ConventionUtils {
 			}
 		}
 		
+		if (isJavaLangClass(s)) {
+			return true;
+		}
+		
 		return false;
+	}
+	
+	public static boolean isJavaLangClass(String s) {
+		if (s == null) {
+			return false;
+		}
+		
+		boolean exist = false;
+		
+		try {
+			Class.forName("java.lang." + firstCharacterUpperCaseConverter.convert(s));
+			exist = true;
+		} catch (ClassNotFoundException e) {
+		}
+		
+		return exist;
 	}
 
 	public static String getPath(String packageName) {

@@ -87,7 +87,7 @@ public class XmlData {
 	public static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
 	public static final String NAMESPACE_URI = "http://appgen.sourceforge.net/appgen-mapping";
 	public static final String XSI_SCHEMA_LOCATION = "xsi:schemaLocation";
-	public static final String SCHEMA_LOCATION = "http://211.232.39.171/appgen/schema/appgen-mapping-0.0.1.xsd";
+	public static final String SCHEMA_LOCATION = "http://cdnetworks-kr-1.dl.sourceforge.net/project/appgen/appgen-mapping-0.0.1.xsd";
 
 	private MappingData mappingData;
 	

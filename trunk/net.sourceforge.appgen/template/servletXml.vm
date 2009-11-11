@@ -89,7 +89,7 @@
 	<!-- Aop -->
 	
 	<aop:config>
-		<aop:pointcut id="transactionPointcut" expression="execution(* ${entity.getPackageName()}.service..*.*(..))"/>
+		<aop:pointcut id="transactionPointcut" expression="execution(* ${packageName}.service..*.*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut"/>
 	</aop:config>
 	

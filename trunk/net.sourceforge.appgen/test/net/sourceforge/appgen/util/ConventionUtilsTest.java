@@ -16,7 +16,9 @@
 
 package net.sourceforge.appgen.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +27,6 @@ import java.util.List;
 import net.sourceforge.appgen.converter.StringConverter;
 import net.sourceforge.appgen.model.Entity;
 import net.sourceforge.appgen.model.Field;
-import net.sourceforge.appgen.util.ConventionUtils;
 
 import org.junit.Test;
 
@@ -33,10 +34,38 @@ import org.junit.Test;
  * @author Byeongkil Woo
  */
 public class ConventionUtilsTest {
-
+	
 	@Test
 	public void testIsReservedWord() {
+		// Java language
+		assertTrue(ConventionUtils.isReservedWord("public"));
 		assertTrue(ConventionUtils.isReservedWord("class"));
+		assertTrue(ConventionUtils.isReservedWord("extends"));
+		assertTrue(ConventionUtils.isReservedWord("implements"));
+		assertTrue(ConventionUtils.isReservedWord("void"));
+		assertTrue(ConventionUtils.isReservedWord("throws"));
+		assertTrue(ConventionUtils.isReservedWord("this"));
+		assertTrue(ConventionUtils.isReservedWord("super"));
+		
+		// AppGen
+		assertTrue(ConventionUtils.isReservedWord("serialVersionUID"));
+		assertTrue(ConventionUtils.isReservedWord("httpServletRequest"));
+		assertTrue(ConventionUtils.isReservedWord("httpServletResponse"));
+		assertTrue(ConventionUtils.isReservedWord("request"));
+		assertTrue(ConventionUtils.isReservedWord("response"));
+		assertTrue(ConventionUtils.isReservedWord("mav"));
+		
+		// java.lang package
+		assertTrue(ConventionUtils.isReservedWord("object"));
+		assertTrue(ConventionUtils.isReservedWord("string"));
+		assertTrue(ConventionUtils.isReservedWord("system"));
+		assertTrue(ConventionUtils.isReservedWord("error"));
+		assertTrue(ConventionUtils.isReservedWord("exception"));
+		assertTrue(ConventionUtils.isReservedWord("throwable"));
+		assertTrue(ConventionUtils.isReservedWord("thread"));
+		assertTrue(ConventionUtils.isReservedWord("cloneable"));
+		assertTrue(ConventionUtils.isReservedWord("runnable"));
+		assertTrue(ConventionUtils.isReservedWord("comparable"));
 	}
 
 	@Test
