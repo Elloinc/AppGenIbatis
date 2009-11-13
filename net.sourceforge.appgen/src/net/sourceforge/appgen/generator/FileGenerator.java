@@ -32,18 +32,27 @@ import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 
 import net.sourceforge.appgen.Activator;
+import net.sourceforge.appgen.model.AttachFile;
+import net.sourceforge.appgen.model.AttachFilePersister;
+import net.sourceforge.appgen.model.AttachFilePropertyEditor;
 import net.sourceforge.appgen.model.BaseCriteria;
 import net.sourceforge.appgen.model.BaseService;
 import net.sourceforge.appgen.model.Controller;
 import net.sourceforge.appgen.model.Criteria;
 import net.sourceforge.appgen.model.Dao;
+import net.sourceforge.appgen.model.DefaultMethodInvocationLogger;
 import net.sourceforge.appgen.model.Entity;
+import net.sourceforge.appgen.model.FilenameGenerator;
 import net.sourceforge.appgen.model.FormController;
 import net.sourceforge.appgen.model.GenerationInformation;
 import net.sourceforge.appgen.model.Jstl;
+import net.sourceforge.appgen.model.MethodInvocationInfoInterceptor;
+import net.sourceforge.appgen.model.MethodInvocationLogger;
+import net.sourceforge.appgen.model.MethodInvocationLoggingAdvice;
 import net.sourceforge.appgen.model.Paging;
 import net.sourceforge.appgen.model.Service;
 import net.sourceforge.appgen.model.SqlMap;
+import net.sourceforge.appgen.model.UUIDFilenameGenerator;
 import net.sourceforge.appgen.model.Validator;
 import net.sourceforge.appgen.model.WebXml;
 
@@ -110,9 +119,24 @@ public abstract class FileGenerator {
 		Template modelTemplate = Velocity.getTemplate(template);
 		
 		VelocityContext context = new VelocityContext();
+		
+		context.put("numberFormat", "###,###");
+		
 		context.put("baseService", new BaseService(packageName));
 		context.put("baseCriteria", new BaseCriteria(packageName));
 		context.put("paging", new Paging(packageName));
+		
+		context.put("attachFile", new AttachFile(packageName));
+		context.put("attachFilePersister", new AttachFilePersister(packageName));
+		context.put("attachFilePropertyEditor", new AttachFilePropertyEditor(packageName));
+		context.put("filenameGenerator", new FilenameGenerator(packageName));
+		context.put("uUIDFilenameGenerator", new UUIDFilenameGenerator(packageName));
+		
+		context.put("defaultMethodInvocationLogger", new DefaultMethodInvocationLogger(packageName));
+		context.put("methodInvocationInfoInterceptor", new MethodInvocationInfoInterceptor(packageName));
+		context.put("methodInvocationLogger", new MethodInvocationLogger(packageName));
+		context.put("methodInvocationLoggingAdvice", new MethodInvocationLoggingAdvice(packageName));
+		
 		context.put("entity", entity);
 		context.put("criteria", new Criteria(entity));
 		context.put("validator", new Validator(entity));

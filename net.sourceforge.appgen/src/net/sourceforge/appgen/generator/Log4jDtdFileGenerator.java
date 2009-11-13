@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class Log4jDtdFileGenerator extends FileGenerator {
+public class Log4jDtdFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "log4j.dtd";
-	
-	private boolean aleradyGenerate = false;
 	
 	public Log4jDtdFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);

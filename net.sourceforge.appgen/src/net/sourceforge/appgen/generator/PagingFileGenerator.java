@@ -26,34 +26,12 @@ import net.sourceforge.appgen.util.ConventionUtils;
 /**
  * @author Byeongkil Woo
  */
-public class PagingFileGenerator extends FileGenerator {
+public class PagingFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "paging.vm";
 	
-	private boolean aleradyGenerate = false;
-	
 	public PagingFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
-	}
-	
-	@Override
-	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
-			
-			return super.generate(entity);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

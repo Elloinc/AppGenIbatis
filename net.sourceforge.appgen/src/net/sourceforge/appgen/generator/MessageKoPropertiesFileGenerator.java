@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class MessageKoPropertiesFileGenerator extends FileGenerator {
+public class MessageKoPropertiesFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "message_ko.properties";
-	
-	private boolean aleradyGenerate = false;
 	
 	public MessageKoPropertiesFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -50,15 +48,6 @@ public class MessageKoPropertiesFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

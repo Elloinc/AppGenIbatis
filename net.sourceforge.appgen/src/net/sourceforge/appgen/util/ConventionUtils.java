@@ -23,6 +23,7 @@ import java.util.List;
 
 import net.sourceforge.appgen.converter.FirstCharacterUpperCaseConverter;
 import net.sourceforge.appgen.converter.StringConverter;
+import net.sourceforge.appgen.model.Field;
 
 /**
  * @author Byeongkil Woo
@@ -45,14 +46,16 @@ public abstract class ConventionUtils {
 		"logger", "logFactory", 
 		"obj", "result", "prime", 
 		"assert", "errors", "validationUtils", 
-		"dataAccessException", 
+		"dataAccessException", "actualRowsAffected", 
 		"httpServletRequest", "httpServletResponse", 
 		"modelAndView", "servletRequestUtils", "servletRequestUtils", 
 		"servletRequestDataBinder", "binder", "bindException", "errors", "customDateEditor", 
 		"sqlMapClientDaoSupport", 
 		"list", "map", "linkedHashMap", "param", "date", "simpleDateFormat", 
 		"controller", "simpleFormController", "service", "serviceImpl", "dao", "daoImpl", "criteria", "validator", "paging", 
-		"request", "response", "mav", "mode", "totalResults"
+		"request", "response", "mav", "mode", "totalResults", "command", 
+		"attachFilePersister", "attachFilePropertyEditor", "fileSystemResource", "saveResource", 
+		Field.FIELD_TYPE_ATTACH_FILE
 	};
 
 	public static boolean isReservedWord(String s) {

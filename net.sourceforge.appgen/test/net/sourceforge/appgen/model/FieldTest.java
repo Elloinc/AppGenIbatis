@@ -158,6 +158,19 @@ public class FieldTest {
 			assertTrue(PRIMITIVE_WRAPPER_TYPES[i], !field.isPrimitiveType());
 		}
 	}
+	
+	@Test
+	public void testIsAttachFileType() {
+		Field field = new Field(null);
+		
+		assertTrue(!field.isAttachFileType());
+		
+		field.setFieldType(String.class.getName());
+		assertTrue(!field.isAttachFileType());
+		
+		field.setFieldType(Field.FIELD_TYPE_ATTACH_FILE);
+		assertTrue(field.isAttachFileType());
+	}
 
 	@Test
 	public void testGetSimpleObjectClassName() {
@@ -269,6 +282,9 @@ public class FieldTest {
 			field.setFieldType(PRIMITIVE_WRAPPER_TYPES[i]);
 			assertTrue(PRIMITIVE_WRAPPER_TYPES[i], field.isValidFieldType());
 		}
+		
+		field.setFieldType(Field.FIELD_TYPE_ATTACH_FILE);
+		assertTrue(field.isValidFieldType());
 	}
 
 }

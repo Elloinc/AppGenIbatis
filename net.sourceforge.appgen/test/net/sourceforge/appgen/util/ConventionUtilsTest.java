@@ -54,6 +54,10 @@ public class ConventionUtilsTest {
 		assertTrue(ConventionUtils.isReservedWord("request"));
 		assertTrue(ConventionUtils.isReservedWord("response"));
 		assertTrue(ConventionUtils.isReservedWord("mav"));
+		assertTrue(ConventionUtils.isReservedWord("actualRowsAffected"));
+		assertTrue(ConventionUtils.isReservedWord("attachFilePersister"));
+		assertTrue(ConventionUtils.isReservedWord("attachFilePropertyEditor"));
+		assertTrue(ConventionUtils.isReservedWord(Field.FIELD_TYPE_ATTACH_FILE));
 		
 		// java.lang package
 		assertTrue(ConventionUtils.isReservedWord("object"));

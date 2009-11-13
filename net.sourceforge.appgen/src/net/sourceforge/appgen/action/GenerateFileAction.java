@@ -16,20 +16,28 @@
 
 package net.sourceforge.appgen.action;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import net.sourceforge.appgen.editor.MappingDataEditor;
+import net.sourceforge.appgen.generator.AttachFileFileGenerator;
+import net.sourceforge.appgen.generator.AttachFilePersisterFileGenerator;
+import net.sourceforge.appgen.generator.AttachFilePropertyEditorFileGenerator;
 import net.sourceforge.appgen.generator.BaseCriteriaFileGenerator;
 import net.sourceforge.appgen.generator.BaseServiceFileGenerator;
 import net.sourceforge.appgen.generator.ControllerFileGenerator;
 import net.sourceforge.appgen.generator.CriteriaFileGenerator;
 import net.sourceforge.appgen.generator.DaoClassFileGenerator;
 import net.sourceforge.appgen.generator.DaoInterfaceFileGenerator;
+import net.sourceforge.appgen.generator.DefaultMethodInvocationLoggerFileGenerator;
 import net.sourceforge.appgen.generator.DefaultPagingFileGenerator;
 import net.sourceforge.appgen.generator.DetailPageFileGenerator;
 import net.sourceforge.appgen.generator.EditPageFileGenerator;
 import net.sourceforge.appgen.generator.EntityFileGenerator;
 import net.sourceforge.appgen.generator.FileGenerator;
+import net.sourceforge.appgen.generator.FilenameGeneratorFileGenerator;
 import net.sourceforge.appgen.generator.FormControllerFileGenerator;
 import net.sourceforge.appgen.generator.IndexFileGenerator;
 import net.sourceforge.appgen.generator.JdbcDriverFileGenerator;
@@ -39,6 +47,9 @@ import net.sourceforge.appgen.generator.Log4jDtdFileGenerator;
 import net.sourceforge.appgen.generator.Log4jXmlFileGenerator;
 import net.sourceforge.appgen.generator.MessageKoPropertiesFileGenerator;
 import net.sourceforge.appgen.generator.MessagePropertiesFileGenerator;
+import net.sourceforge.appgen.generator.MethodInvocationInfoInterceptorFileGenerator;
+import net.sourceforge.appgen.generator.MethodInvocationLoggerFileGenerator;
+import net.sourceforge.appgen.generator.MethodInvocationLoggingAdviceFileGenerator;
 import net.sourceforge.appgen.generator.PagingFileGenerator;
 import net.sourceforge.appgen.generator.ResourcePropertiesFileGenerator;
 import net.sourceforge.appgen.generator.ServiceClassFileGenerator;
@@ -48,6 +59,8 @@ import net.sourceforge.appgen.generator.SqlMapConfigFileGenerator;
 import net.sourceforge.appgen.generator.SqlMapFileGenerator;
 import net.sourceforge.appgen.generator.StyleFileGenerator;
 import net.sourceforge.appgen.generator.TagsFileGenerator;
+import net.sourceforge.appgen.generator.UUIDFilenameGeneratorFileGenerator;
+import net.sourceforge.appgen.generator.UploadSaveDirectoryGenerator;
 import net.sourceforge.appgen.generator.ValidatorFileGenerator;
 import net.sourceforge.appgen.generator.WebXmlFileGenerator;
 import net.sourceforge.appgen.generator.WritePageFileGenerator;
@@ -60,6 +73,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.part.EditorPart;
 
 /**
@@ -104,6 +119,18 @@ public class GenerateFileAction extends Action {
 			fileGeneratorList.add(new BaseServiceFileGenerator(generationInformation));
 			fileGeneratorList.add(new PagingFileGenerator(generationInformation));
 			
+			fileGeneratorList.add(new UploadSaveDirectoryGenerator(generationInformation));
+			fileGeneratorList.add(new AttachFileFileGenerator(generationInformation));
+			fileGeneratorList.add(new AttachFilePersisterFileGenerator(generationInformation));
+			fileGeneratorList.add(new AttachFilePropertyEditorFileGenerator(generationInformation));
+			fileGeneratorList.add(new FilenameGeneratorFileGenerator(generationInformation));
+			fileGeneratorList.add(new UUIDFilenameGeneratorFileGenerator(generationInformation));
+			
+			fileGeneratorList.add(new DefaultMethodInvocationLoggerFileGenerator(generationInformation));
+			fileGeneratorList.add(new MethodInvocationInfoInterceptorFileGenerator(generationInformation));
+			fileGeneratorList.add(new MethodInvocationLoggerFileGenerator(generationInformation));
+			fileGeneratorList.add(new MethodInvocationLoggingAdviceFileGenerator(generationInformation));
+			
 			fileGeneratorList.add(new EntityFileGenerator(generationInformation));
 			fileGeneratorList.add(new CriteriaFileGenerator(generationInformation));
 			fileGeneratorList.add(new ValidatorFileGenerator(generationInformation));
@@ -133,6 +160,8 @@ public class GenerateFileAction extends Action {
 				boolean overwriteYesToAll = false;
 				boolean overwriteNoToAll = false;
 
+				List<File> generatedFileList = new ArrayList<File>();
+				
 				// outer:
 				for (FileGenerator fileGenerator : fileGeneratorList) {
 					fileGenerator.generateDirectory();
@@ -189,7 +218,9 @@ public class GenerateFileAction extends Action {
 
 								entity.setPackageName(generationInformation.getPackageName());
 								
-								fileGenerator.generate(entity);
+								File file = fileGenerator.generate(entity);
+								
+								generatedFileList.add(file);
 							} catch (Exception e) {
 								MessageDialog.openError(editor.getSite().getShell(), "error", e.getMessage());
 							}
@@ -198,6 +229,8 @@ public class GenerateFileAction extends Action {
 						monitor.worked(1);
 					}
 				}
+				
+				printGeneratedFileList(generatedFileList);
 			}
 			
 			monitor.done();
@@ -205,6 +238,28 @@ public class GenerateFileAction extends Action {
 			MessageDialog.openError(editor.getSite().getShell(), "Generate file error", e.getMessage());
 		} finally {
 		}
+	}
+	
+	private void printGeneratedFileList(List<File> generatedFileList) {
+		if (generatedFileList == null) {
+			return;
+		}
+		
+		MappingDataEditor mappingDataEditor = (MappingDataEditor) editor;
+		MessageConsole console = mappingDataEditor.getConsole();
+		MessageConsoleStream out = console.newMessageStream();
+		
+		Collections.sort(generatedFileList);
+		
+		out.println("---- AppGen: Generated information ----------------------------------------------------------------");
+		out.println(generatedFileList.size() + " files generated.");
+		out.println("---- file list ------------------------------------------------------------------------------------");
+		
+		for (File file : generatedFileList) {
+			out.println(file.toString());
+		}
+		
+		out.println("---------------------------------------------------------------------------------------------------");
 	}
 
 }

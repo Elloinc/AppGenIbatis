@@ -31,7 +31,7 @@ import net.sourceforge.appgen.model.GenerationInformation;
 /**
  * @author Byeongkil Woo
  */
-public class IndexFileGenerator extends FileGenerator {
+public class IndexFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "index.vm";
 	
@@ -84,15 +84,6 @@ public class IndexFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

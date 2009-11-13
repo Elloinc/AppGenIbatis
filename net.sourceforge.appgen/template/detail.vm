@@ -62,7 +62,13 @@
 		<tr>
 			<th>${field.getFieldName()}</th>
 			<td>
-#if ("java.util.Date" == ($field.getFieldType()))
+#if ($field.isAttachFileType())
+				<c:if test="${!empty ${entity.getInstanceName()}.${field.getFieldName()}}">
+					<a href="<c:url value="/upload/save/${${entity.getInstanceName()}.${field.getFieldName()}.name}"/>" target="_blank">
+						<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}.name}"/>
+					</a>
+				</c:if>
+#elseif ("java.util.Date" == ($field.getFieldType()))
 				<fmt:formatDate value="${${entity.getInstanceName()}.${field.getFieldName()}}" pattern="yyyy-MM-dd HH:mm:ss"/>
 #else
 				<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}}"/>

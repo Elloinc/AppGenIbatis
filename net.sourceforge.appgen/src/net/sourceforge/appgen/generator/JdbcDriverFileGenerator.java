@@ -26,9 +26,7 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class JdbcDriverFileGenerator extends FileGenerator {
-	
-	private boolean aleradyGenerate = false;
+public class JdbcDriverFileGenerator extends OnceFileGenerator {
 	
 	private ConnectionInformation connectionInformation;
 	
@@ -53,15 +51,6 @@ public class JdbcDriverFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

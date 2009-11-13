@@ -7,21 +7,92 @@ ${declaration}
 public class ${service.getClassName()} extends ${service.getSuperClassName()} implements ${service.getInterfaceName()} {
 
 	private ${dao.getInterfaceName()} ${dao.getInstanceName()};
+#if ($entity.hasAttachFileField())
+
+	private FileSystemResource saveResource;
+#end
 
 	public void set${dao.getInterfaceName()}(${dao.getInterfaceName()} ${dao.getInstanceName()}) {
 		this.${dao.getInstanceName()} = ${dao.getInstanceName()};
 	}
+#if ($entity.hasAttachFileField())
+
+	public void setSaveResource(FileSystemResource saveResource) {
+		this.saveResource = saveResource;
+	}
+#end
 
 	public void insert(${entity.getClassName()} ${entity.getInstanceName()}) {
 		${dao.getInstanceName()}.insert(${entity.getInstanceName()});
+#if ($entity.hasAttachFileField())
+
+#foreach ($field in $entity.getAttachFileFieldList())
+		AttachFile ${field.getFieldName()} = ${entity.getInstanceName()}.${field.getGetterMethodName()}();
+#end
+
+#foreach ($field in $entity.getAttachFileFieldList())
+		if (${field.getFieldName()}.isCheckSave()) {
+			AttachFilePersister.saveFile(saveResource.getFile(), ${field.getFieldName()});
+		}
+#end
+#end
 	}
 
 	public int update(${entity.getClassName()} ${entity.getInstanceName()}) {
-		return ${dao.getInstanceName()}.update(${entity.getInstanceName()});
+		int actualRowsAffected = 0;
+		
+#foreach ($field in $entity.getPrimaryKeyFieldList())
+		${field.getSimpleFieldType()} ${field.getFieldName()} = ${entity.getInstanceName()}.${field.getGetterMethodName()}();
+#end
+
+		${entity.getClassName()} _old${entity.getClassName()} = ${dao.getInstanceName()}.select(${dao.getPrimaryKeyParameters(false)});
+		
+		if (_old${entity.getClassName()} != null) {
+			actualRowsAffected = ${dao.getInstanceName()}.update(${entity.getInstanceName()});
+#if ($entity.hasAttachFileField())
+
+#foreach ($field in $entity.getAttachFileFieldList())
+			AttachFile _old${field.getFirstCapFieldName()} = _old${entity.getClassName()}.${field.getGetterMethodName()}();
+#end
+
+#foreach ($field in $entity.getAttachFileFieldList())
+			AttachFile ${field.getFieldName()} = ${entity.getInstanceName()}.${field.getGetterMethodName()}();
+#end
+#foreach ($field in $entity.getAttachFileFieldList())
+		
+			if (${field.getFieldName()}.isCheckSave()) {
+				AttachFilePersister.saveFile(saveResource.getFile(), ${field.getFieldName()});
+			}
+			if (${field.getFieldName()}.isCheckDelete() || ${field.getFieldName()}.isCheckSave()) {
+				AttachFilePersister.deleteFile(saveResource.getFile(), _old${field.getFirstCapFieldName()});
+			}
+#end
+#end
+		}
+		
+		return actualRowsAffected;
 	}
 
 	public int delete(${dao.getPrimaryKeyParameters()}) {
-		return ${dao.getInstanceName()}.delete(${dao.getPrimaryKeyParameters(false)});
+		int actualRowsAffected = 0;
+		
+		${entity.getClassName()} _old${entity.getClassName()} = ${dao.getInstanceName()}.select(${dao.getPrimaryKeyParameters(false)});
+		
+		if (_old${entity.getClassName()} != null) {
+			actualRowsAffected = ${dao.getInstanceName()}.delete(${dao.getPrimaryKeyParameters(false)});
+#if ($entity.hasAttachFileField())
+
+#foreach ($field in $entity.getAttachFileFieldList())
+			AttachFile _old${field.getFirstCapFieldName()} = _old${entity.getClassName()}.${field.getGetterMethodName()}();
+#end
+
+#foreach ($field in $entity.getAttachFileFieldList())
+			AttachFilePersister.deleteFile(saveResource.getFile(), _old${field.getFirstCapFieldName()});
+#end
+#end
+		}
+		
+		return actualRowsAffected;
 	}
 	
 	public ${entity.getClassName()} select(${dao.getPrimaryKeyParameters()}) {

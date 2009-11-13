@@ -14,7 +14,10 @@ public class ${validator.getClassName()} implements Validator {
 	public void validate(Object target, Errors errors) {
 #foreach ($field in $entity.getFieldList())
 #if ($field.isCreate())
+#if ($field.isAttachFileType())
+#else
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "${field.getFieldName()}", "required");
+#end
 #end
 #end
 	}

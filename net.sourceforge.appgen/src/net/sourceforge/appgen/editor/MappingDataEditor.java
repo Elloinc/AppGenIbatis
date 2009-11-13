@@ -179,7 +179,7 @@ public class MappingDataEditor extends EditorPart {
 		mappingData = new MappingData(new ConnectionInformation(), new GenerationInformation(), new ArrayList<Entity>());
 		
 		consoleManager = ConsolePlugin.getDefault().getConsoleManager();
-		console = new MessageConsole("Entity generator", null);
+		console = new MessageConsole("AppGen", null);
 		stream = console.newMessageStream();
 		consoleManager.addConsoles(new IConsole[] { console });
 		consoleManager.showConsoleView(console);
@@ -323,6 +323,10 @@ public class MappingDataEditor extends EditorPart {
 		return true;
 	}
 	
+	public MessageConsole getConsole() {
+		return console;
+	}
+
 	public void loadData() {
 		FileEditorInput fileEditorInput = (FileEditorInput) super.getEditorInput();
 		File file = new File(fileEditorInput.getURI());

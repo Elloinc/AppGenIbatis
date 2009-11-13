@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class StyleFileGenerator extends FileGenerator {
+public class StyleFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "style.css";
-	
-	private boolean aleradyGenerate = false;
 	
 	public StyleFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -50,15 +48,6 @@ public class StyleFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override
