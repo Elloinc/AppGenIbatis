@@ -33,10 +33,26 @@ public class ${formController.getClassName()} extends SimpleFormController {
 #if ($formController.isCustomDateEditorRequired())
 ${formController.getInitBinderCustomDateEditor()}
 #end
+#if ($formController.isAttachFilePropertyEditorRequired())
+${formController.getInitBinderAttachFilePropertyEditor()}
+#end
 	}
 
 	@Override
 	protected void onBind(HttpServletRequest request, Object command, BindException errors) throws Exception {
+#if ($formController.isOnBindRequired())
+		${entity.getClassName()} ${entity.getInstanceName()} = (${entity.getClassName()}) command;
+#if ($entity.hasAttachFileField())
+
+#foreach ($field in $entity.getAttachFileFieldList())
+		boolean _checkDelete${field.getFirstCapFieldName()} = ServletRequestUtils.getBooleanParameter(request, "${field.getFieldName()}.checkDelete", false);		
+#end
+
+#foreach ($field in $entity.getAttachFileFieldList())
+		${entity.getInstanceName()}.${field.getGetterMethodName()}().setCheckDelete(_checkDelete${field.getFirstCapFieldName()});
+#end
+#end
+#end
 	}
 
 	@Override

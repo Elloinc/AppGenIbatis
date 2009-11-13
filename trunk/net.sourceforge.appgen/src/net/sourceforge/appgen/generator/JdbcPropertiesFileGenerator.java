@@ -31,13 +31,11 @@ import net.sourceforge.appgen.model.GenerationInformation;
 /**
  * @author Byeongkil Woo
  */
-public class JdbcPropertiesFileGenerator extends FileGenerator {
+public class JdbcPropertiesFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "jdbcProperties.vm";
 	
 	private ConnectionInformation connectionInformation;
-	
-	private boolean aleradyGenerate = false;
 	
 	public JdbcPropertiesFileGenerator(GenerationInformation generationInformation, ConnectionInformation connectionInformation) {
 		super(generationInformation);
@@ -84,15 +82,6 @@ public class JdbcPropertiesFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

@@ -32,8 +32,12 @@
 #end
 	<form:hidden path="paging.currentPage"/>
 	</form:form>
-	
+
+#if ($entity.hasAttachFileField())
+	<form:form commandName="${entity.getInstanceName()}" name="${entity.getInstanceName()}Form" action="/${entity.getInstanceName()}Write.do" enctype="multipart/form-data">
+#else
 	<form:form commandName="${entity.getInstanceName()}" name="${entity.getInstanceName()}Form" action="/${entity.getInstanceName()}Write.do">
+#end
 	<input type="hidden" name="mode" value="write"/>
 	<table width="800">
 		<colgroup width="800">
@@ -45,7 +49,9 @@
 		<tr>
 			<th>${field.getFieldName()}</th>
 			<td>
-#if ($field.isLob())
+#if ($field.isAttachFileType())
+				<input type="file" name="${field.getFieldName()}"/>
+#elseif ($field.isLob())
 				<form:textarea path="${field.getFieldName()}" cols="80" rows="10"/>
 #else
 				<form:input path="${field.getFieldName()}"/>

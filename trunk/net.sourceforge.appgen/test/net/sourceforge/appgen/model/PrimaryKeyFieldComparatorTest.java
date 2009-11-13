@@ -54,12 +54,12 @@ public class PrimaryKeyFieldComparatorTest {
 		f1.setPkPosition(1);
 		f2.setPkPosition(2);
 		
-		assertTrue(comparator.compare(f0, f1) < 0);
-		assertTrue(comparator.compare(f1, f0) > 0);
+		assertTrue(comparator.compare(f0, f1) > 0);
+		assertTrue(comparator.compare(f1, f0) < 0);
 		assertTrue(comparator.compare(f1, f2) < 0);
 		assertTrue(comparator.compare(f2, f1) > 0);
-		assertTrue(comparator.compare(f0, f2) < 0);
-		assertTrue(comparator.compare(f2, f0) > 0);
+		assertTrue(comparator.compare(f0, f2) > 0);
+		assertTrue(comparator.compare(f2, f0) < 0);
 	}
 
 }

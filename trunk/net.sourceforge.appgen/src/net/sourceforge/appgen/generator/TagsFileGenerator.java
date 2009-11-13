@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class TagsFileGenerator extends FileGenerator {
+public class TagsFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "tags.jsp";
-	
-	private boolean aleradyGenerate = false;
 	
 	public TagsFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -50,15 +48,6 @@ public class TagsFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

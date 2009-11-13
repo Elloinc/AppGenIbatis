@@ -103,6 +103,22 @@ public class Service implements Serializable {
 			}
 		}
 		
+		if (concrete) {
+			for (Field field : entity.getFieldList()) {
+				if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+					if (!list.contains(entity.getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE)) {
+						list.add(entity.getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE);
+					}
+					if (!list.contains(entity.getPackageName() + ".base.AttachFilePersister")) {
+						list.add(entity.getPackageName() + ".base.AttachFilePersister");
+					}
+					if (!list.contains("org.springframework.core.io.FileSystemResource")) {
+						list.add("org.springframework.core.io.FileSystemResource");
+					}
+				}
+			}
+		}
+		
 		return list;
 	}
 

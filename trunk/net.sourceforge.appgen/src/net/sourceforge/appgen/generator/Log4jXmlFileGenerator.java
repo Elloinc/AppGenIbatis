@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class Log4jXmlFileGenerator extends FileGenerator {
+public class Log4jXmlFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "log4j.xml";
-	
-	private boolean aleradyGenerate = false;
 	
 	public Log4jXmlFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -50,15 +48,6 @@ public class Log4jXmlFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

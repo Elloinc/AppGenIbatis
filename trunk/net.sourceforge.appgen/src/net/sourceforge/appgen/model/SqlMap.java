@@ -55,7 +55,11 @@ public class SqlMap implements Serializable {
 						buffer.append(FileUtils.ln());
 					}
 					
-					buffer.append(indent + "<result " + "column=\"" + field.getColumnName() + "\"" + " property=\"" + field.getFieldName() + "\"");
+					if (field.isAttachFileType()) {
+						buffer.append(indent + "<result " + "column=\"" + field.getColumnName() + "\"" + " property=\"" + field.getFieldName() + ".name\"");
+					} else {
+						buffer.append(indent + "<result " + "column=\"" + field.getColumnName() + "\"" + " property=\"" + field.getFieldName() + "\"");
+					}
 					
 					if ("BLOB".equalsIgnoreCase(field.getColumnType())) {
 						buffer.append(" jdbcType=\"BLOB\"");
@@ -171,9 +175,6 @@ public class SqlMap implements Serializable {
 		buffer.append(getAllColumnNamesExceptLOB(indent + "\t") + FileUtils.ln());
 		buffer.append(indent + "FROM" + FileUtils.ln());
 		buffer.append(indent + "\t" + entity.getTableName());
-		// buffer.append(indent + "\t" + entity.getTableName() + FileUtils.ln());
-		// buffer.append(indent + "ORDER BY" + FileUtils.ln());
-		// buffer.append(getOrderByClause(indent + "\t"));
 		
 		return buffer.toString();
 	}
@@ -254,7 +255,11 @@ public class SqlMap implements Serializable {
 					buffer.append(", ");
 				}
 				
-				buffer.append("#" + field.getFieldName() + "#");
+				if (field.isAttachFileType()) {
+					buffer.append("#" + field.getFieldName() + ".name#");
+				} else {
+					buffer.append("#" + field.getFieldName() + "#");
+				}
 			}
 		}
 		
@@ -264,13 +269,35 @@ public class SqlMap implements Serializable {
 	private String getAllColumnNamesAndVariablesExceptPrimaryKey(String indent) {
 		StringBuffer buffer = new StringBuffer();
 		
+		boolean first = true;
 		for (Field field : entity.getFieldList()) {
 			if (field.isCreate() && field.getPkPosition() == 0) {
-				if (buffer.length() > 0) {
-					buffer.append("," + FileUtils.ln());
+				if (!field.isAttachFileType()) {
+					if (!first) {
+						buffer.append(",");
+					}
+					buffer.append(FileUtils.ln());
+					buffer.append(indent + field.getColumnName() + " = " + "#" + field.getFieldName() + "#");
+					
+					first = false;
 				}
-				
+			}
+		}
+		
+		if (first) {
+			for (Field field : entity.getPrimaryKeyFieldList()) {
 				buffer.append(indent + field.getColumnName() + " = " + "#" + field.getFieldName() + "#");
+				break;
+			}			
+		}
+		
+		for (Field field : entity.getFieldList()) {
+			if (field.isCreate() && field.getPkPosition() == 0) {
+				if (field.isAttachFileType()) {
+					buffer.append(indent + "<isEqual property=\"" + field.getFieldName() + ".checkSaveOrDelete\" compareValue=\"true\" open=\",\">" + FileUtils.ln());
+					buffer.append(indent + "\t" + field.getColumnName() + " = " + "#" + field.getFieldName() + ".name#" + FileUtils.ln());
+					buffer.append(indent + "</isEqual>" + FileUtils.ln());
+				}
 			}
 		}
 		

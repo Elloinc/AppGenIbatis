@@ -32,8 +32,12 @@
 #end
 	<form:hidden path="paging.currentPage"/>
 	</form:form>
-	
+
+#if ($entity.hasAttachFileField())
+	<form:form commandName="${entity.getInstanceName()}" name="${entity.getInstanceName()}Form" action="/${entity.getInstanceName()}Edit.do" enctype="multipart/form-data">
+#else
 	<form:form commandName="${entity.getInstanceName()}" name="${entity.getInstanceName()}Form" action="/${entity.getInstanceName()}Edit.do">
+#end
 	<input type="hidden" name="mode" value="edit"/>
 #foreach ($field in $entity.getPrimaryKeyFieldList())
 #if ($field.isCreate())
@@ -53,7 +57,15 @@
 #if ($field.getPkPosition() > 0)
 				<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}}"/>
 #else
-#if ($field.isLob())
+#if ($field.isAttachFileType())
+				<input type="file" name="${field.getFieldName()}"/>
+				<c:if test="${!empty ${entity.getInstanceName()}.${field.getFieldName()}}">
+					<div>
+						<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}.name}"/>
+						<form:checkbox path="${field.getFieldName()}.checkDelete" label="delete"/>
+					</div>
+				</c:if>
+#elseif ($field.isLob())
 				<form:textarea path="${field.getFieldName()}" cols="80" rows="10"/>
 #else
 				<form:input path="${field.getFieldName()}"/>

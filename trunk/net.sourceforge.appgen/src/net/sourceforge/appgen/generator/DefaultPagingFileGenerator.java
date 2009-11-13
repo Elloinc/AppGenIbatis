@@ -25,11 +25,9 @@ import net.sourceforge.appgen.util.FileUtils;
 /**
  * @author Byeongkil Woo
  */
-public class DefaultPagingFileGenerator extends FileGenerator {
+public class DefaultPagingFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "paging.jsp";
-	
-	private boolean aleradyGenerate = false;
 	
 	public DefaultPagingFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -50,15 +48,6 @@ public class DefaultPagingFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

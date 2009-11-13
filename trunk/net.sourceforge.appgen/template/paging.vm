@@ -206,16 +206,14 @@ public class Paging implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(getClass().getSimpleName());
-		sb.append("(");
-		sb.append("firstPage=" + getFirstPage() + ", ");
-		sb.append("lastPage=" + getLastPage() + ", ");
-		sb.append("currentPage=" + getCurrentPage() + ", ");
-		sb.append("startPagingLink=" + getStartPagingLink() + ", ");
-		sb.append("endPagingLink=" + getEndPagingLink());
-		sb.append(")");
-
-		return sb.toString();
+		return getClass().getName() + "@" + Integer.toHexString(hashCode()) + 
+			"(" + 
+			"firstPage=" + "'" + getFirstPage() + "'" + ", " + 
+			"lastPage=" + "'" + getLastPage() + "'" + ", " + 
+			"currentPage=" + "'" + getCurrentPage() + "'" + ", " + 
+			"startPagingLink=" + "'" + getStartPagingLink() + "'" + ", " + 
+			"endPagingLink=" + "'" + getEndPagingLink() + "'" + 
+			")";
 	}
 
 }

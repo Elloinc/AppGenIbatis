@@ -63,6 +63,20 @@ public class Entity extends ValueModifyModel implements Serializable {
 		fieldList = new ArrayList<Field>();
 	}
 
+	public List<Field> getToStringFieldList() {
+		List<Field> list = new ArrayList<Field>();
+
+		for (Field field : fieldList) {
+			if (field.isCreate() && (field.getPkPosition() > 0 || Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType()))) {
+				list.add(field);
+			}
+		}
+
+		Collections.sort(list, primaryKeyFieldComparator);
+
+		return list;
+	}
+	
 	public List<Field> getPrimaryKeyFieldList() {
 		List<Field> list = new ArrayList<Field>();
 
@@ -73,6 +87,24 @@ public class Entity extends ValueModifyModel implements Serializable {
 		}
 
 		Collections.sort(list, primaryKeyFieldComparator);
+
+		return list;
+	}
+	
+	public boolean hasAttachFileField() {
+		List<Field> list = getAttachFileFieldList();
+		
+		return list.size() > 0;
+	}
+	
+	public List<Field> getAttachFileFieldList() {
+		List<Field> list = new ArrayList<Field>();
+
+		for (Field field : fieldList) {
+			if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+				list.add(field);
+			}
+		}
 
 		return list;
 	}
@@ -135,6 +167,11 @@ public class Entity extends ValueModifyModel implements Serializable {
 						if (!list.contains(field.getFieldType())) {
 							list.add(field.getFieldType());
 						}
+					}
+				}
+				if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+					if (!list.contains(getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE)) {
+						list.add(getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE);
 					}
 				}
 			}

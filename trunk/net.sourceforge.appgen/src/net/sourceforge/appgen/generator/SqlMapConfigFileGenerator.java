@@ -31,7 +31,7 @@ import net.sourceforge.appgen.model.GenerationInformation;
 /**
  * @author Byeongkil Woo
  */
-public class SqlMapConfigFileGenerator extends FileGenerator {
+public class SqlMapConfigFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "sqlmap-config.vm";
 	
@@ -84,15 +84,6 @@ public class SqlMapConfigFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

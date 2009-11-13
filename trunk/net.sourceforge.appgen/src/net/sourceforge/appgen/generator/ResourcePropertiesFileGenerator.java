@@ -30,7 +30,7 @@ import net.sourceforge.appgen.model.GenerationInformation;
 /**
  * @author Byeongkil Woo
  */
-public class ResourcePropertiesFileGenerator extends FileGenerator {
+public class ResourcePropertiesFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "resourceProperties.vm";
 	
@@ -79,15 +79,6 @@ public class ResourcePropertiesFileGenerator extends FileGenerator {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override

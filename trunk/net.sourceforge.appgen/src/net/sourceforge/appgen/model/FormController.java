@@ -98,6 +98,17 @@ public class FormController implements Serializable {
 			}
 		}
 		
+		for (Field field : entity.getFieldList()) {
+			if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+				if (!list.contains(entity.getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE)) {
+					list.add(entity.getPackageName() + ".base." + Field.FIELD_TYPE_ATTACH_FILE);
+				}
+				if (!list.contains(entity.getPackageName() + ".base.AttachFilePropertyEditor")) {
+					list.add(entity.getPackageName() + ".base.AttachFilePropertyEditor");
+				}
+			}
+		}
+		
 		return list;
 	}
 
@@ -140,6 +151,20 @@ public class FormController implements Serializable {
 		return false;
 	}
 	
+	public boolean isOnBindRequired() {
+		return isAttachFilePropertyEditorRequired();
+	}
+	
+	public boolean isAttachFilePropertyEditorRequired() {
+		for (Field field : entity.getFieldList()) {
+			if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public String getInitBinderCustomDateEditor() {
 		return getInitBinderCustomDateEditor("\t\t");
 	}
@@ -154,6 +179,27 @@ public class FormController implements Serializable {
 					buffer.append(FileUtils.ln());
 				}
 				buffer.append(indent + "binder.registerCustomEditor(Date.class, \"" + field.getFieldName() + "\", new CustomDateEditor(new SimpleDateFormat(\"yyyyMMdd\"), false, 8));");
+				first = false;
+			}
+		}
+		
+		return buffer.toString();
+	}
+	
+	public String getInitBinderAttachFilePropertyEditor() {
+		return getInitBinderAttachFilePropertyEditor("\t\t");
+	}
+	
+	public String getInitBinderAttachFilePropertyEditor(String indent) {
+		StringBuffer buffer = new StringBuffer();
+		
+		boolean first = true;
+		for (Field field : entity.getFieldList()) {
+			if (field.isCreate() && Field.FIELD_TYPE_ATTACH_FILE.equals(field.getFieldType())) {
+				if (!first) {
+					buffer.append(FileUtils.ln());
+				}
+				buffer.append(indent + "binder.registerCustomEditor(AttachFile.class, \"" + field.getFieldName() + "\", new AttachFilePropertyEditor());");
 				first = false;
 			}
 		}

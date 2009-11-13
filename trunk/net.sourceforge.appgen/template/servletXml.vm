@@ -100,11 +100,29 @@
 			<tx:method name="delete*"/>
 			<tx:method name="*" read-only="true"/>
 		</tx:attributes>
-	</tx:advice>	
+	</tx:advice>
 
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="invocationPointcut" 
+			expression="
+				execution(* ${packageName}..*.*(..))
+				&amp;&amp; 
+				!execution(* ${packageName}.logging..*.*(..)) 			
+				&amp;&amp; 
+				!execution(* *.toString(..))
+				"/>
+		<aop:advisor pointcut-ref="invocationPointcut" advice-ref="methodInvocationLoggingAdvice"/>
+	</aop:config>
+	
+	<bean id="methodInvocationLoggingAdvice" class="com.intermajor.appgen.logging.MethodInvocationLoggingAdvice">
+		<property name="methodInvocationLogger" ref="methodInvocationLogger"/>
+	</bean>
+	
+	<bean id="methodInvocationLogger" class="com.intermajor.appgen.logging.DefaultMethodInvocationLogger"/>	
 	
 	<!-- Data source -->
 	
@@ -148,11 +166,15 @@
 	
 #end
 #end
-	
 	<!-- Handler mappings -->
 	
 	<bean id="handlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="order" value="1"/>
+		<property name="interceptors">
+			<list>
+				<ref bean="methodInvocationInfoInterceptor"/>
+			</list>
+		</property>		
 		<property name="mappings">
 			<props>
 #foreach ($entity in $entityList)
@@ -166,6 +188,10 @@
 		</property>
 	</bean>
 	
+	<!-- Interceptors -->
+	
+	<bean id="methodInvocationInfoInterceptor" class="com.intermajor.appgen.logging.MethodInvocationInfoInterceptor"/>
+		
 	<!-- Controllers -->
 	
 #foreach ($entity in $entityList)
@@ -203,13 +229,15 @@
 	
 #end
 #end
-	
 	<!-- Service -->
 
 #foreach ($entity in $entityList)
 #if ($entity.isCreate())
 	<bean id="${entity.getInstanceName()}Service" class="${entity.getPackageName()}.service.impl.${entity.getClassName()}ServiceImpl">
 		<property name="${entity.getInstanceName()}Dao" ref="${entity.getInstanceName()}Dao"/>
+#if ($entity.hasAttachFileField())
+		<property name="saveResource" ref="uploadSaveDir"/>
+#end
 	</bean>
 	
 #end

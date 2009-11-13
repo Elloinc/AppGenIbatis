@@ -33,12 +33,14 @@ public class Field extends ValueModifyModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String FIELD_TYPE_ATTACH_FILE = "AttachFile";
+	
 	private static final StringConverter firstCharacterCaptitalizeConverter = new FirstCharacterUpperCaseConverter();
 	
 	private static final Pattern VALID_FIELD_NAME_PATTERN = Pattern.compile("^([a-z]+([a-z0-9_]+[a-zA-Z0-9_]*)?)$");
 	
 	private static final Pattern VALID_FIELD_TYPE_PATTERN = Pattern.compile("^((([a-z]+(a-zA-Z0-9)*)?[.]{1})+[a-zA-Z]+([a-zA-Z0-9]*)?)$");
-
+	
 	private Entity entity;
 	
 	private String columnName;
@@ -145,6 +147,10 @@ public class Field extends ValueModifyModel implements Serializable {
 		return false;
 	}
 	
+	public boolean isAttachFileType() {
+		return FIELD_TYPE_ATTACH_FILE.equals(fieldType);
+	}
+	
 	public String getSimpleObjectClassName() {
 		if ("byte".equals(fieldType)) {
 			return Byte.class.getSimpleName();
@@ -213,6 +219,14 @@ public class Field extends ValueModifyModel implements Serializable {
 		
 		if (isPrimitiveType()) {
 			return true;
+		}
+		
+		if (isAttachFileType()) {
+			if (pkPosition > 0) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 		
 		return false;

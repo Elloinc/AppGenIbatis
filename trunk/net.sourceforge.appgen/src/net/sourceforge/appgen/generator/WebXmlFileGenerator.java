@@ -24,34 +24,12 @@ import net.sourceforge.appgen.model.GenerationInformation;
 /**
  * @author Byeongkil Woo
  */
-public class WebXmlFileGenerator extends FileGenerator {
+public class WebXmlFileGenerator extends OnceFileGenerator {
 
 	public static final String TEMPLATE = "webXml.vm";
 	
-	private boolean aleradyGenerate = false;
-	
 	public WebXmlFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
-	}
-	
-	@Override
-	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
-			
-			return super.generate(entity);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
-			return super.existFile(entity);
-		}
-		
-		return false;
 	}
 	
 	@Override
