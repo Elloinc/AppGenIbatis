@@ -213,7 +213,6 @@ public class MappingDataEditor extends EditorPart {
 			try {
 				stream.close();
 			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 
