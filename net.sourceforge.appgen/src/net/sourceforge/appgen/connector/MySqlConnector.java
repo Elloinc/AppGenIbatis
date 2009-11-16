@@ -127,6 +127,7 @@ public class MySqlConnector extends JdbcConnector {
 				field.setColumnLength(columnLength);
 				
 				// field.setPkPosition(rs.getInt("PK_POSITION"));
+				field.setNullable("YES".equals(rs.getString("Null")));
 				field.setLob(isLob(dataType));
 				field.setCreate(true);
 

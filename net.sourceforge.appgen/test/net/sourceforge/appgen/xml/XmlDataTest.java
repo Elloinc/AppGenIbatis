@@ -143,7 +143,7 @@ public class XmlDataTest {
 		Assert.assertEquals(XmlData.ROOT_ELEMENT_TAG_NAME, root.getTagName());
 
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XSD_NAMESPACE_URI);
-		Schema schema = schemaFactory.newSchema(ClassLoader.getSystemResource("net/sourceforge/appgen/xml/appgen-mapping-0.0.1.xsd"));
+		Schema schema = schemaFactory.newSchema(ClassLoader.getSystemResource("net/sourceforge/appgen/xml/appgen-mapping-0.0.2.xsd"));
 		
 		Validator validator = schema.newValidator();
 		validator.validate(new StreamSource(new FileInputStream(file)));

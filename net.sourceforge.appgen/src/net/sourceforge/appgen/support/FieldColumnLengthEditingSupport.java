@@ -16,7 +16,7 @@
 
 package net.sourceforge.appgen.support;
 
-import java.util.List;
+import net.sourceforge.appgen.model.Field;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
@@ -25,17 +25,14 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 
-import net.sourceforge.appgen.model.Entity;
-import net.sourceforge.appgen.model.Field;
-
 /**
  * @author Byeongkil Woo
  */
-public class FieldPkPositionEditingSupport extends EditingSupport {
+public class FieldColumnLengthEditingSupport extends EditingSupport {
 
 	private CellEditor editor;
 
-	public FieldPkPositionEditingSupport(ColumnViewer viewer) {
+	public FieldColumnLengthEditingSupport(ColumnViewer viewer) {
 		super(viewer);
 
 		editor = new TextCellEditor(((TableViewer) viewer).getTable(), SWT.RIGHT);
@@ -55,41 +52,17 @@ public class FieldPkPositionEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Field field = (Field) element;
 		
-		return (field.getPkPosition() <= 0) ? "" : String.valueOf(field.getPkPosition());
+		return String.valueOf(field.getColumnLength());
 	}
 
 	@Override
 	protected void setValue(Object element, Object value) {
 		Field field = (Field) element;
 		
-		if (value == null || String.valueOf(value).length() == 0) {
-			field.setPkPosition(0);
-		}
-
 		try {
-			int pkPosition = Integer.parseInt(String.valueOf(value));
+			int columnLength = Integer.parseInt(String.valueOf(value));
 			
-			if (pkPosition == 0) {
-			}
-			if (pkPosition < 0) {
-				return;
-			}
-			if (pkPosition > 0) {	
-				Entity entity = field.getEntity();
-				if (field.getEntity() != null) {
-					List<Field> fieldList = entity.getFieldList();
-					if (fieldList != null) {
-						for (Field f : fieldList) {
-							int p = f.getPkPosition();
-							if (!field.equals(f) && p == pkPosition) {
-								return;
-							}
-						}
-					}
-				}
-			}
-
-			field.setPkPosition(pkPosition);
+			field.setColumnLength(columnLength);
 		} catch (NumberFormatException e) {
 		}
 

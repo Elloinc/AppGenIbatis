@@ -32,14 +32,14 @@ import net.sourceforge.appgen.model.Field;
 public class OracleConnector extends JdbcConnector {
 
 	private static final String FIELD_LIST_SQL = 
-			"SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, PK_POSITION, MIN(RN) RN FROM ("
-			+ "SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, ROWNUM RN, "
+			"SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE, PK_POSITION, MIN(RN) RN FROM ("
+			+ "SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE, ROWNUM RN, "
 			+ "    (SELECT UCC.POSITION FROM USER_CONSTRAINTS UC, USER_CONS_COLUMNS UCC "
 			+ "     WHERE UC.CONSTRAINT_NAME = UCC.CONSTRAINT_NAME AND UC.CONSTRAINT_TYPE = 'P' "
 			+ "     AND UC.TABLE_NAME = A.TABLE_NAME "
 			+ "     AND UCC.COLUMN_NAME = A.COLUMN_NAME) PK_POSITION "
 			+ "FROM ALL_TAB_COLUMNS A WHERE TABLE_NAME = ?"
-			+ ") GROUP BY COLUMN_NAME, DATA_TYPE, DATA_LENGTH, PK_POSITION ORDER BY RN";
+			+ ") GROUP BY COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE, PK_POSITION ORDER BY RN";
 
 	public OracleConnector(ConnectionInformation connectionInformation) {
 		super(connectionInformation);
@@ -120,6 +120,7 @@ public class OracleConnector extends JdbcConnector {
 				field.setFieldType(getConventionFieldType(dataType));
 				field.setColumnLength(rs.getInt("DATA_LENGTH"));
 				field.setPkPosition(rs.getInt("PK_POSITION"));
+				field.setNullable("Y".equals(rs.getString("NULLABLE")));
 				field.setLob(isLob(dataType));
 				field.setCreate(true);
 
