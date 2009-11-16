@@ -16,29 +16,25 @@
 
 package net.sourceforge.appgen.support;
 
-import java.util.List;
+import net.sourceforge.appgen.model.Field;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.swt.SWT;
-
-import net.sourceforge.appgen.model.Entity;
-import net.sourceforge.appgen.model.Field;
 
 /**
  * @author Byeongkil Woo
  */
-public class FieldPkPositionEditingSupport extends EditingSupport {
+public class FieldColumnTypeEditingSupport extends EditingSupport {
 
 	private CellEditor editor;
 
-	public FieldPkPositionEditingSupport(ColumnViewer viewer) {
+	public FieldColumnTypeEditingSupport(ColumnViewer viewer) {
 		super(viewer);
 
-		editor = new TextCellEditor(((TableViewer) viewer).getTable(), SWT.RIGHT);
+		editor = new TextCellEditor(((TableViewer) viewer).getTable());
 	}
 
 	@Override
@@ -55,43 +51,14 @@ public class FieldPkPositionEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Field field = (Field) element;
 		
-		return (field.getPkPosition() <= 0) ? "" : String.valueOf(field.getPkPosition());
+		return field.getColumnType();
 	}
 
 	@Override
 	protected void setValue(Object element, Object value) {
 		Field field = (Field) element;
 		
-		if (value == null || String.valueOf(value).length() == 0) {
-			field.setPkPosition(0);
-		}
-
-		try {
-			int pkPosition = Integer.parseInt(String.valueOf(value));
-			
-			if (pkPosition == 0) {
-			}
-			if (pkPosition < 0) {
-				return;
-			}
-			if (pkPosition > 0) {	
-				Entity entity = field.getEntity();
-				if (field.getEntity() != null) {
-					List<Field> fieldList = entity.getFieldList();
-					if (fieldList != null) {
-						for (Field f : fieldList) {
-							int p = f.getPkPosition();
-							if (!field.equals(f) && p == pkPosition) {
-								return;
-							}
-						}
-					}
-				}
-			}
-
-			field.setPkPosition(pkPosition);
-		} catch (NumberFormatException e) {
-		}
+		field.setColumnType(String.valueOf(value).trim());
 
 		getViewer().update(element, null);
 	}

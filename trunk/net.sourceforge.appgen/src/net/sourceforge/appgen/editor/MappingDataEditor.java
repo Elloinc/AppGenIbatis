@@ -44,8 +44,13 @@ import net.sourceforge.appgen.model.ValueModifyListener;
 import net.sourceforge.appgen.support.EntityBaseNameEditingSupport;
 import net.sourceforge.appgen.support.EntityGeneratorEditingSupport;
 import net.sourceforge.appgen.support.EntityTableLabelProvider;
+import net.sourceforge.appgen.support.FieldColumnLengthEditingSupport;
+import net.sourceforge.appgen.support.FieldColumnNameEditingSupport;
+import net.sourceforge.appgen.support.FieldColumnTypeEditingSupport;
 import net.sourceforge.appgen.support.FieldCreateEditingSupport;
+import net.sourceforge.appgen.support.FieldLobEditingSupport;
 import net.sourceforge.appgen.support.FieldNameEditingSupport;
+import net.sourceforge.appgen.support.FieldNullableEditingSupport;
 import net.sourceforge.appgen.support.FieldPkPositionEditingSupport;
 import net.sourceforge.appgen.support.FieldPositionEditingSupport;
 import net.sourceforge.appgen.support.FieldTableLabelProvider;
@@ -207,8 +212,6 @@ public class MappingDataEditor extends EditorPart {
 	
 	@Override
 	public void dispose() {
-		super.dispose();
-
 		if (stream != null) {
 			try {
 				stream.close();
@@ -227,6 +230,8 @@ public class MappingDataEditor extends EditorPart {
 		if (imageRegistry != null) {
 			imageRegistry.dispose();
 		}
+		
+		super.dispose();
 	}
 
 	@Override
@@ -536,9 +541,9 @@ public class MappingDataEditor extends EditorPart {
 		fieldTable.setHeaderVisible(true);
 		fieldTable.setLinesVisible(true);
 
-		String[] columnNames = new String[] { "", "Column name", "Column type", "Field name", "Field type", "PK", "", "" };
-		int[] columnWidths = new int[] { 40, 160, 115, 130, 130, 50, 25, 25 };
-		int[] columnAlignments = new int[] { SWT.CENTER, SWT.LEFT, SWT.LEFT, SWT.LEFT, SWT.LEFT, SWT.RIGHT, SWT.CENTER, SWT.CENTER };
+		String[] columnNames = new String[] { "", "Column name", "Column type", "Column length", "PK", "Nullable", "Lob", "Field name", "Field type", "", "" };
+		int[] columnWidths = new int[] { 40, 150, 100, 100, 50, 70, 60, 130, 130, 25, 25 };
+		int[] columnAlignments = new int[] { SWT.CENTER, SWT.LEFT, SWT.LEFT, SWT.RIGHT, SWT.RIGHT, SWT.RIGHT, SWT.RIGHT, SWT.LEFT, SWT.LEFT, SWT.CENTER, SWT.CENTER };
 
 		for (int i = 0; i < columnNames.length; i++) {
 			TableViewerColumn column = new TableViewerColumn(fieldTableViewer, SWT.NONE);
@@ -564,20 +569,35 @@ public class MappingDataEditor extends EditorPart {
 
 				column.setEditingSupport(new FieldCreateEditingSupport(fieldTableViewer));
 			}
+			if (i == 1) {
+				column.setEditingSupport(new FieldColumnNameEditingSupport(fieldTableViewer));
+			}
+			if (i == 2) {
+				column.setEditingSupport(new FieldColumnTypeEditingSupport(fieldTableViewer));
+			}
 			if (i == 3) {
-				column.setEditingSupport(new FieldNameEditingSupport(fieldTableViewer));
+				column.setEditingSupport(new FieldColumnLengthEditingSupport(fieldTableViewer));
 			}
 			if (i == 4) {
-				column.setEditingSupport(new FieldTypeEditingSupport(fieldTableViewer));
-			}
-			if (i == 5) {
 				column.setEditingSupport(new FieldPkPositionEditingSupport(fieldTableViewer));
 			}
+			if (i == 5) {
+				column.setEditingSupport(new FieldNullableEditingSupport(fieldTableViewer));
+			}
 			if (i == 6) {
+				column.setEditingSupport(new FieldLobEditingSupport(fieldTableViewer));
+			}
+			if (i == 7) {
+				column.setEditingSupport(new FieldNameEditingSupport(fieldTableViewer));
+			}
+			if (i == 8) {
+				column.setEditingSupport(new FieldTypeEditingSupport(fieldTableViewer));
+			}
+			if (i == 9) {
 				tableColumn.setResizable(false);
 				column.setEditingSupport(new FieldPositionEditingSupport(fieldTableViewer, false));
 			}
-			if (i == 7) {
+			if (i == 10) {
 				tableColumn.setResizable(false);
 				column.setEditingSupport(new FieldPositionEditingSupport(fieldTableViewer, true));
 			}
@@ -949,38 +969,59 @@ public class MappingDataEditor extends EditorPart {
 
 				for (Field field : entity.getFieldList()) {
 					if (field.isCreate()) {
-						if (!field.isValidFieldName() || !field.isValidFieldType()) {
-							if (!field.isValidFieldName()) {
-								MessageDialog.openError(getSite().getShell(), "Invalid", "Field name '" + field.getFieldName() + "' is invalid.");
-							} else {
-								MessageDialog.openError(getSite().getShell(), "Invalid", "Field type '" + field.getFieldType() + "' is invalid.");
-							}
+						boolean validField = true;
+						
+						if (validField && !field.isValidColumnName()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Column name '" + field.getColumnName() + "' is invalid.");
+							validField = false;
+						}
+						if (validField && !field.isValidColumnType()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Column type '" + field.getColumnType() + "' is invalid.");
+							validField = false;
+						}
+						if (validField && !field.isValidColumnLength()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Column length '" + field.getColumnLength() + "' is invalid.");
+							validField = false;							
+						}
+						if (validField && !field.isValidNullable()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Nullable '" + field.isNullable() + "' is invalid.");
+							validField = false;							
+						}
+						if (validField && !field.isValidFieldName()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Field name '" + field.getFieldName() + "' is invalid.");
+							validField = false;							
+						}
+						if (validField && !field.isValidFieldType()) {
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Field type '" + field.getFieldType() + "' is invalid.");
+							validField = false;
+						}
 
+						if (!validField) {
 							Table entityTable = entityTableViewer.getTable();
-
+	
 							TableItem[] tableItems = entityTable.getItems();
 							for (int i = 0; i < tableItems.length; i++) {
 								Entity tableEntity = (Entity) tableItems[i].getData();
-
+	
 								if (entity == tableEntity) {
 									entityTable.setSelection(i);
-
+	
 									currentEntity = entityList.get(i);
 									fieldTableViewer.setInput(currentEntity.getFieldList());
-
+	
 									Table fieldTable = fieldTableViewer.getTable();
-
+	
 									TableItem[] fieldTableItems = fieldTable.getItems();
 									for (int j = 0; j < fieldTableItems.length; j++) {
 										Field tableField = (Field) fieldTableItems[j].getData();
-
+	
 										if (field == tableField) {
 											fieldTable.setSelection(j);
 										}
 									}
 								}
 							}
-
+	
 							return false;
 						}
 					}

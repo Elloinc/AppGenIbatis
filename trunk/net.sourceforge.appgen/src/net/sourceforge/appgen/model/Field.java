@@ -57,6 +57,8 @@ public class Field extends ValueModifyModel implements Serializable {
 
 	private int pkPosition;
 	
+	private boolean nullable;
+	
 	private boolean lob;
 	
 	public Field(final Entity entity) {
@@ -188,6 +190,46 @@ public class Field extends ValueModifyModel implements Serializable {
 		return null;		
 	}
 	
+	public boolean isValidColumnName() {
+		String columnName = getColumnName();
+		
+		if (columnName != null & columnName.length() == 0) {
+			return false;
+		}
+		
+		if (columnName.indexOf(" ") >= 0) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean isValidColumnType() {
+		String columnType = getColumnType();
+		
+		if (columnType != null & columnType.length() == 0) {
+			return false;
+		}
+		
+		if (columnType.indexOf(" ") >= 0) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean isValidColumnLength() {
+		return getColumnLength() >= 0;
+	}
+	
+	public boolean isValidNullable() {
+		if (getPkPosition() > 0 && isNullable()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public boolean isValidFieldName() {
 		if (getFieldName() == null) {
 			return false;
@@ -231,7 +273,7 @@ public class Field extends ValueModifyModel implements Serializable {
 		
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -243,6 +285,7 @@ public class Field extends ValueModifyModel implements Serializable {
 		result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());
 		result = prime * result + ((fieldType == null) ? 0 : fieldType.hashCode());
 		result = prime * result + (lob ? 1231 : 1237);
+		result = prime * result + (nullable ? 1231 : 1237);
 		result = prime * result + pkPosition;
 		return result;
 	}
@@ -281,6 +324,8 @@ public class Field extends ValueModifyModel implements Serializable {
 		} else if (!fieldType.equals(other.fieldType))
 			return false;
 		if (lob != other.lob)
+			return false;
+		if (nullable != other.nullable)
 			return false;
 		if (pkPosition != other.pkPosition)
 			return false;
@@ -361,6 +406,14 @@ public class Field extends ValueModifyModel implements Serializable {
 		valueModified();
 	}
 
+	public boolean isNullable() {
+		return nullable;
+	}
+
+	public void setNullable(boolean nullable) {
+		this.nullable = nullable;
+	}
+	
 	public boolean isLob() {
 		return lob;
 	}

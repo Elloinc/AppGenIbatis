@@ -63,21 +63,26 @@ public class FieldTableLabelProvider extends LabelProvider implements ITableLabe
 		case 1:
 			return field.getColumnName();
 		case 2:
-			String columnType = field.getColumnType();
-			int columnLenght = field.getColumnLength();
-			return columnLenght <= 0 ? columnType : columnType + "(" + columnLenght + ")";
+			return field.getColumnType();
 		case 3:
-			return field.getFieldName();
+			return String.valueOf(field.getColumnLength());
 		case 4:
-			return field.getFieldType();
+			return field.getPkPosition() <= 0 ? "" : String.valueOf(field.getPkPosition());
 		case 5:
-			return field.getPkPosition() == 0 ? "" : String.valueOf(field.getPkPosition());
+			return String.valueOf(field.isNullable());
 		case 6:
+			return String.valueOf(field.isLob());
+		case 7:
+			return field.getFieldName();
+		case 8:
+			return field.getFieldType();
+
+		case 9:
 			if (entity.getFieldList().size() > 0 && entity.getFieldList().get(0) == field) {
 				return "";
 			}
 			return "¡ü";
-		case 7:
+		case 10:
 			if (entity.getFieldList().size() > 0 && entity.getFieldList().get(entity.getFieldList().size() - 1) == field) {
 				return "";
 			}

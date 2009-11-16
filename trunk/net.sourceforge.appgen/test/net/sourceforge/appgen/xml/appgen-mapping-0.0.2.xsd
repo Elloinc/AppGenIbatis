@@ -89,6 +89,7 @@
 		<xsd:attribute name="columnLength" type="xsd:integer" use="required" />
 		<xsd:attribute name="pkPosition" type="xsd:nonNegativeInteger" default="0" />
 		<xsd:attribute name="lob" type="xsd:boolean" default="false" />
+		<xsd:attribute name="nullable" type="xsd:boolean" default="false" />
 		<xsd:attribute name="fieldName" type="xsd:string" use="required" />
 		<xsd:attribute name="fieldType" type="xsd:string" use="required" />
 		<xsd:attribute name="create" type="xsd:boolean" default="true" />

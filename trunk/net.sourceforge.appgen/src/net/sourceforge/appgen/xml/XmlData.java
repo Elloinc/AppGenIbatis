@@ -81,13 +81,14 @@ public class XmlData {
 	public static final String COLUMN_LENGTH_ATTR_NAME = "columnLength";
 	public static final String PK_POSITION_ATTR_NAME = "pkPosition";
 	public static final String LOB_ATTR_NAME = "lob";
+	public static final String NULLABLE_ATTR_NAME = "nullable";
 	public static final String FIELD_NAME_ATTR_NAME = "fieldName";
 	public static final String FIELD_TYPE_ATTR_NAME = "fieldType";
 
 	public static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
 	public static final String NAMESPACE_URI = "http://appgen.sourceforge.net/appgen-mapping";
 	public static final String XSI_SCHEMA_LOCATION = "xsi:schemaLocation";
-	public static final String SCHEMA_LOCATION = "http://cdnetworks-kr-1.dl.sourceforge.net/project/appgen/appgen-mapping-0.0.1.xsd";
+	public static final String SCHEMA_LOCATION = "http://cdnetworks-kr-1.dl.sourceforge.net/project/appgen/appgen-mapping-0.0.2.xsd";
 
 	private MappingData mappingData;
 	
@@ -225,6 +226,7 @@ public class XmlData {
 			fieldElement.setAttribute(COLUMN_LENGTH_ATTR_NAME, String.valueOf(field.getColumnLength()));
 			fieldElement.setAttribute(PK_POSITION_ATTR_NAME, String.valueOf(field.getPkPosition()));
 			fieldElement.setAttribute(LOB_ATTR_NAME, String.valueOf(field.isLob()));
+			fieldElement.setAttribute(NULLABLE_ATTR_NAME, String.valueOf(field.isNullable()));
 			fieldElement.setAttribute(FIELD_NAME_ATTR_NAME, field.getFieldName() == null ? "" : field.getFieldName());
 			fieldElement.setAttribute(FIELD_TYPE_ATTR_NAME, field.getFieldType() == null ? "" : field.getFieldType());
 			fieldElement.setAttribute(CREATE_ATTR_NAME, String.valueOf(field.isCreate()));
@@ -347,6 +349,7 @@ public class XmlData {
 			} catch (Exception e) {
 			}
 			boolean lob = "true".equals(fieldElement.getAttribute(LOB_ATTR_NAME));
+			boolean nullable = "true".equals(fieldElement.getAttribute(NULLABLE_ATTR_NAME));
 			String fieldName = fieldElement.getAttribute(FIELD_NAME_ATTR_NAME);
 			String fieldType = fieldElement.getAttribute(FIELD_TYPE_ATTR_NAME);
 			boolean create = "true".equals(fieldElement.getAttribute(XmlData.CREATE_ATTR_NAME));
@@ -356,6 +359,7 @@ public class XmlData {
 			field.setColumnLength(columnLength);
 			field.setPkPosition(pkPosition);
 			field.setLob(lob);
+			field.setNullable(nullable);
 			field.setFieldName(fieldName);
 			field.setFieldType(fieldType);
 			field.setCreate(create);
