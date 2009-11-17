@@ -45,11 +45,13 @@ ${formController.getInitBinderAttachFilePropertyEditor()}
 #if ($entity.hasAttachFileField())
 
 #foreach ($field in $entity.getAttachFileFieldList())
-		boolean _checkDelete${field.getFirstCapFieldName()} = ServletRequestUtils.getBooleanParameter(request, "${field.getFieldName()}.checkDelete", false);		
+		boolean _checkDelete${field.getFirstCapFieldName()} = ServletRequestUtils.getBooleanParameter(request, "${field.getFieldName()}.checkDelete", false);
 #end
 
 #foreach ($field in $entity.getAttachFileFieldList())
-		${entity.getInstanceName()}.${field.getGetterMethodName()}().setCheckDelete(_checkDelete${field.getFirstCapFieldName()});
+		if (${entity.getInstanceName()}.${field.getGetterMethodName()}() != null) {
+			${entity.getInstanceName()}.${field.getGetterMethodName()}().setCheckDelete(_checkDelete${field.getFirstCapFieldName()});
+		}
 #end
 #end
 #end
@@ -57,6 +59,53 @@ ${formController.getInitBinderAttachFilePropertyEditor()}
 
 	@Override
 	protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors) throws Exception {
+#if ($entity.hasAttachFileField())
+		${entity.getClassName()} ${entity.getInstanceName()} = (${entity.getClassName()}) command;
+		
+#foreach ($field in $entity.getAttachFileFieldList())
+		AttachFile ${field.getFieldName()} = ${entity.getInstanceName()}.${field.getGetterMethodName()}();
+#end
+		
+#foreach ($field in $entity.getAttachFileFieldList())
+		if (${field.getFieldName()}.getSize() > 1L * 1024 * 1024) {
+			errors.rejectValue("${field.getFieldName()}", "exceed", new String[] { "1M" }, null);
+		}
+#end
+		
+		String mode = ServletRequestUtils.getRequiredStringParameter(request, "mode");
+		
+		if (mode.equals("write")) {
+#foreach ($field in $entity.getAttachFileFieldList())
+#if (${field.isNullable()})
+#else
+			if (!${field.getFieldName()}.isCheckSave()) {
+				errors.rejectValue("${field.getFieldName()}", "required");
+			}
+#end
+#end
+		}
+		
+		if (mode.equals("edit")) {
+#foreach ($field in $entity.getAttachFileFieldList())
+#if (${field.isNullable()})
+#else
+			if (${field.getFieldName()}.isCheckDelete() && !${field.getFieldName()}.isCheckSave()) {
+				errors.rejectValue("${field.getFieldName()}", "required");
+			}
+#end
+#end
+		}
+		
+		if (errors.hasErrors()) {
+			${entity.getClassName()} _old${entity.getClassName()} = (${entity.getClassName()}) formBackingObject(request);
+			
+#foreach ($field in $entity.getAttachFileFieldList())
+			${entity.getInstanceName()}.${field.getSetterMethodName()}(_old${entity.getClassName()}.${field.getGetterMethodName()}());
+#end
+			
+			onBind(request, ${entity.getInstanceName()}, errors);
+		}
+#end
 	}
 
 	@Override

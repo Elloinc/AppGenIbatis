@@ -16,7 +16,10 @@ public class ${validator.getClassName()} implements Validator {
 #if ($field.isCreate())
 #if ($field.isAttachFileType())
 #else
+#if ($field.isNullable())
+#else
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "${field.getFieldName()}", "required");
+#end
 #end
 #end
 #end
