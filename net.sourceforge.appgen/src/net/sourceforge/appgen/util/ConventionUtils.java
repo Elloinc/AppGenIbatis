@@ -23,7 +23,6 @@ import java.util.List;
 
 import net.sourceforge.appgen.converter.FirstCharacterUpperCaseConverter;
 import net.sourceforge.appgen.converter.StringConverter;
-import net.sourceforge.appgen.model.Field;
 
 /**
  * @author Byeongkil Woo
@@ -55,7 +54,7 @@ public abstract class ConventionUtils {
 		"controller", "simpleFormController", "service", "serviceImpl", "dao", "daoImpl", "criteria", "validator", "paging", 
 		"request", "response", "mav", "mode", "totalResults", "command", 
 		"attachFilePersister", "attachFilePropertyEditor", "fileSystemResource", "saveResource", 
-		Field.FIELD_TYPE_ATTACH_FILE
+		"attachFile"
 	};
 
 	public static boolean isReservedWord(String s) {
