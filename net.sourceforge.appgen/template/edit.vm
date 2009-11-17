@@ -62,7 +62,9 @@
 				<c:if test="${!empty ${entity.getInstanceName()}.${field.getFieldName()}}">
 					<div>
 						<c:out value="${${entity.getInstanceName()}.${field.getFieldName()}.name}"/>
+#if ($field.isNullable())
 						<form:checkbox path="${field.getFieldName()}.checkDelete" label="delete"/>
+#end
 					</div>
 				</c:if>
 #elseif ($field.isLob())
