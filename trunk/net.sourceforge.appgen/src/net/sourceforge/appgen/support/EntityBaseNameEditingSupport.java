@@ -51,7 +51,7 @@ public class EntityBaseNameEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Entity entity = (Entity) element;
 		
-		return entity.getBaseName();
+		return entity.getBaseName() == null ? "" : entity.getBaseName();
 	}
 
 	@Override

@@ -16,24 +16,24 @@
 
 package net.sourceforge.appgen.support;
 
-import net.sourceforge.appgen.model.Field;
-
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 
+import net.sourceforge.appgen.model.Entity;
+
 /**
  * @author Byeongkil Woo
  */
-public class FieldColumnNameEditingSupport extends EditingSupport {
+public class EntityTableNameEditingSupport extends EditingSupport {
 
 	private CellEditor editor;
-
-	public FieldColumnNameEditingSupport(ColumnViewer viewer) {
+	
+	public EntityTableNameEditingSupport(ColumnViewer viewer) {
 		super(viewer);
-
+		
 		editor = new TextCellEditor(((TableViewer) viewer).getTable());
 	}
 
@@ -49,17 +49,17 @@ public class FieldColumnNameEditingSupport extends EditingSupport {
 
 	@Override
 	protected Object getValue(Object element) {
-		Field field = (Field) element;
+		Entity entity = (Entity) element;
 		
-		return field.getColumnName() == null ? "" : field.getColumnName();
+		return entity.getTableName() == null ? "" : entity.getTableName();
 	}
 
 	@Override
 	protected void setValue(Object element, Object value) {
-		Field field = (Field) element;
+		Entity entity = (Entity) element;
 		
-		field.setColumnName(String.valueOf(value).trim());
-
+		entity.setTableName(String.valueOf(value).trim());
+		
 		getViewer().update(element, null);
 	}
 

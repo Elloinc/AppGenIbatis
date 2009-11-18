@@ -197,6 +197,20 @@ public class Entity extends ValueModifyModel implements Serializable {
 		return false;
 	}
 
+	public boolean isValidTableName() {
+		String tableName = getTableName();
+		
+		if (tableName != null & tableName.length() == 0) {
+			return false;
+		}
+		
+		if (tableName.indexOf(" ") >= 0) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public boolean isValidBaseName() {
 		if (getBaseName() == null) {
 			return false;
@@ -276,7 +290,7 @@ public class Entity extends ValueModifyModel implements Serializable {
 			return false;
 		return true;
 	}
-
+	
 	public String getTableName() {
 		return tableName;
 	}
