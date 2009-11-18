@@ -51,7 +51,7 @@ public class FieldColumnTypeEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Field field = (Field) element;
 		
-		return field.getColumnType();
+		return field.getColumnType() == null ? "" : field.getColumnType();
 	}
 
 	@Override

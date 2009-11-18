@@ -51,7 +51,7 @@ public class FieldTypeEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Field field = (Field) element;
 		
-		return field.getFieldType();
+		return field.getFieldType() == null ? "" : field.getFieldType();
 	}
 
 	@Override

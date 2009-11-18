@@ -44,6 +44,7 @@ import net.sourceforge.appgen.model.ValueModifyListener;
 import net.sourceforge.appgen.support.EntityBaseNameEditingSupport;
 import net.sourceforge.appgen.support.EntityGeneratorEditingSupport;
 import net.sourceforge.appgen.support.EntityTableLabelProvider;
+import net.sourceforge.appgen.support.EntityTableNameEditingSupport;
 import net.sourceforge.appgen.support.FieldColumnLengthEditingSupport;
 import net.sourceforge.appgen.support.FieldColumnNameEditingSupport;
 import net.sourceforge.appgen.support.FieldColumnTypeEditingSupport;
@@ -84,6 +85,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -173,6 +175,11 @@ public class MappingDataEditor extends EditorPart {
 
 	private Button connectionButton;
 	private Button generationButton;
+	
+	private Button addEntityButton;
+	private Button removeEntityButton;
+	private Button addFieldButton;
+	private Button removeFieldButton;	
 
 	private DataBindingContext dataBindingContext;
 	
@@ -244,15 +251,17 @@ public class MappingDataEditor extends EditorPart {
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		final Composite contentComponent = new Composite(scrolledComposite, SWT.NONE);
 		scrolledComposite.setContent(contentComponent);
-
+		
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
 		contentComponent.setLayout(layout);
-
+		
 		createConnectionInputPart(contentComponent);
 		createConnectionButtonPart(contentComponent);
 		createEntityTable(contentComponent);
+		createEntityButtonPart(contentComponent);
 		createFieldTable(contentComponent);
+		createFieldButtonPart(contentComponent);
 		createGenerationInputPart(contentComponent);
 		createGenerationButtonPart(contentComponent);
 
@@ -464,6 +473,147 @@ public class MappingDataEditor extends EditorPart {
 			}
 		});
 	}
+	
+	private void createEntityButtonPart(final Composite contentComponent) {
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gridData.horizontalSpan = 3;
+		
+		final Composite composite = new Composite(contentComponent, SWT.NONE);
+		composite.setLayoutData(gridData);
+		composite.setLayout(new FillLayout());
+
+		addEntityButton = new Button(composite, SWT.PUSH);
+		addEntityButton.setText("Add entity");
+
+		addEntityButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				Entity entity = new Entity();
+				entity.setCreate(allEntitySelection);
+				mappingData.getEntityList().add(entity);
+				
+				entityTableViewer.setInput(mappingData.getEntityList());
+				entityTableViewer.getTable().setSelection(mappingData.getEntityList().size() - 1);
+				
+				fieldTableViewer.setInput(entity.getFieldList());
+				
+				currentEntity = entity;
+				
+				dirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		});
+		
+		removeEntityButton = new Button(composite, SWT.PUSH);
+		removeEntityButton.setText("Remove entity");
+		
+		removeEntityButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (currentEntity == null) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Select entity.");
+					return;
+				}
+				
+				boolean confirm = MessageDialog.openConfirm(getSite().getShell(), "confirm", "Delete selected entity?");
+				
+				if (!confirm) {
+					return;
+				}
+				
+				Table entityTable = entityTableViewer.getTable();
+
+				TableItem[] tableItems = entityTable.getItems();
+				for (int i = 0; i < tableItems.length; i++) {
+					Entity tableEntity = (Entity) tableItems[i].getData();
+
+					if (currentEntity == tableEntity) {
+						mappingData.getEntityList().remove(i);
+						break;
+					}
+				}
+				
+				entityTableViewer.setInput(mappingData.getEntityList());
+				fieldTableViewer.setInput(null);
+				
+				entityTableViewer.getTable().setSelection(- 1);
+				fieldTableViewer.getTable().setSelection(-1);
+				
+				currentEntity = null;
+				
+				dirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		});
+	}
+	
+	private void createFieldButtonPart(final Composite contentComponent) {
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gridData.horizontalSpan = 3;
+		
+		final Composite composite = new Composite(contentComponent, SWT.NONE);
+		composite.setLayoutData(gridData);
+		composite.setLayout(new FillLayout());
+
+		addFieldButton = new Button(composite, SWT.PUSH);
+		addFieldButton.setText("Add field");
+
+		addFieldButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (currentEntity == null) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Select entity.");
+					return;
+				}
+
+				Field field = new Field(currentEntity);
+				field.setCreate(currentEntity.isAllFieldSelection());
+				currentEntity.getFieldList().add(field);
+				
+				fieldTableViewer.setInput(currentEntity.getFieldList());
+				fieldTableViewer.getTable().setSelection(currentEntity.getFieldList().size() - 1);
+				
+				dirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		});
+		
+		removeFieldButton = new Button(composite, SWT.PUSH);
+		removeFieldButton.setText("Remove field");
+		
+		removeFieldButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				// TODO: currentField can't be null. ???
+				Field currentField = null;
+				
+				TableItem[] selectedTableItems = fieldTableViewer.getTable().getSelection();
+				if (selectedTableItems != null) {
+					currentField = (Field) selectedTableItems[0].getData();
+				}
+				
+				if (currentField == null) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Select field.");
+					return;
+				}
+				
+				TableItem[] tableItems = fieldTableViewer.getTable().getItems();
+				for (int i = 0; i < tableItems.length; i++) {
+					if (tableItems[i].getData() == currentField) {
+						currentField.getEntity().getFieldList().remove(i);
+						break;
+					}
+				}
+				
+				fieldTableViewer.setInput(currentField.getEntity().getFieldList());
+				
+				fieldTableViewer.getTable().setSelection(-1);
+				
+				dirty = true;
+				firePropertyChange(PROP_DIRTY);
+			}
+		});
+	}
 
 	private void createEntityTable(Composite parent) {
 		GridData gridData;
@@ -497,6 +647,9 @@ public class MappingDataEditor extends EditorPart {
 				});
 
 				column.setEditingSupport(new EntityGeneratorEditingSupport(entityTableViewer));
+			}
+			if (i == 1) {
+				column.setEditingSupport(new EntityTableNameEditingSupport(entityTableViewer));
 			}
 			if (i == 2) {
 				column.setEditingSupport(new EntityBaseNameEditingSupport(entityTableViewer));
@@ -905,9 +1058,18 @@ public class MappingDataEditor extends EditorPart {
 		
 		for (Entity entity : entityList) {
 			if (entity.isCreate()) {
-				if (entity.getPrimaryKeyFieldList().size() == 0) {
-					MessageDialog.openError(getSite().getShell(), "Invalid", "Table " + entity.getTableName() + "'s primary key required.");
-
+				boolean validEntity = true;
+				
+				if (validEntity && !entity.isValidTableName()) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Table name '" + entity.getTableName() + "' is invalid.");
+					validEntity = false;
+				}
+				if (validEntity && !entity.isValidBaseName()) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Base name '" + entity.getBaseName() + "' is invalid.");
+					validEntity = false;
+				}
+				
+				if (!validEntity) {
 					Table entityTable = entityTableViewer.getTable();
 
 					TableItem[] tableItems = entityTable.getItems();
@@ -924,9 +1086,9 @@ public class MappingDataEditor extends EditorPart {
 
 					return false;
 				}
-
-				if (!entity.isValidBaseName()) {
-					MessageDialog.openError(getSite().getShell(), "Invalid", "Base name '" + entity.getBaseName() + "' is invalid.");
+				
+				if (entity.getPrimaryKeyFieldList().size() == 0) {
+					MessageDialog.openError(getSite().getShell(), "Invalid", "Table " + entity.getTableName() + "'s primary key required.");
 
 					Table entityTable = entityTableViewer.getTable();
 
