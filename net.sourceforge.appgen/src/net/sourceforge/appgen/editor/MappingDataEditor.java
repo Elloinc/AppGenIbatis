@@ -214,7 +214,7 @@ public class MappingDataEditor extends EditorPart {
 		
 		setPartName(input.getName());
 		
-		loadData();
+		loadData(input);
 	}
 	
 	@Override
@@ -339,9 +339,9 @@ public class MappingDataEditor extends EditorPart {
 	public MessageConsole getConsole() {
 		return console;
 	}
-
-	public void loadData() {
-		FileEditorInput fileEditorInput = (FileEditorInput) super.getEditorInput();
+	
+	public void loadData(IEditorInput input) {
+		FileEditorInput fileEditorInput = (FileEditorInput) input;
 		File file = new File(fileEditorInput.getURI());
 		
 		XmlData xmlData = new XmlData();
@@ -350,6 +350,7 @@ public class MappingDataEditor extends EditorPart {
 			xmlData.loadFromXml(file);
 			
 			mappingData = xmlData.getMappingData();
+			
 			mappingData.addValueModifyListener(new DataModifyListener());
 		} catch (Exception e) {
 			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
@@ -452,13 +453,10 @@ public class MappingDataEditor extends EditorPart {
 					try {
 						List<Entity> entityList = connector.getEntityList();
 						
-						if (entityList != null) {
-							for (Entity entity : entityList) {
-								entity.addValueModifyListener(new DataModifyListener());
-							}
-						}
-						
 						mappingData.setEntityList(entityList);
+						
+						mappingData.addValueModifyListener(new DataModifyListener());
+						
 						showEntityList(contentComponent, mappingData.getEntityList());
 						
 						dirty = true;
@@ -491,6 +489,8 @@ public class MappingDataEditor extends EditorPart {
 				Entity entity = new Entity();
 				entity.setCreate(allEntitySelection);
 				mappingData.getEntityList().add(entity);
+				
+				mappingData.addValueModifyListener(new DataModifyListener());
 				
 				entityTableViewer.setInput(mappingData.getEntityList());
 				entityTableViewer.getTable().setSelection(mappingData.getEntityList().size() - 1);
@@ -570,6 +570,8 @@ public class MappingDataEditor extends EditorPart {
 				field.setCreate(currentEntity.isAllFieldSelection());
 				currentEntity.getFieldList().add(field);
 				
+				mappingData.addValueModifyListener(new DataModifyListener());
+				
 				fieldTableViewer.setInput(currentEntity.getFieldList());
 				fieldTableViewer.getTable().setSelection(currentEntity.getFieldList().size() - 1);
 				
@@ -584,7 +586,6 @@ public class MappingDataEditor extends EditorPart {
 		removeFieldButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				// TODO: currentField can't be null. ???
 				Field currentField = null;
 				
 				TableItem[] selectedTableItems = fieldTableViewer.getTable().getSelection();
@@ -1259,6 +1260,15 @@ public class MappingDataEditor extends EditorPart {
 		public void valueModified() {
 			dirty = true;
 			firePropertyChange(PROP_DIRTY);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof DataModifyListener) {
+				return true;
+			}
+			
+			return false;
 		}
 	}
 	

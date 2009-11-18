@@ -45,8 +45,13 @@ public class MappingData implements Serializable {
 	}
 	
 	public void addValueModifyListener(ValueModifyListener listener) {
-		connectionInformation.addValueModifyListener(listener);
-		generationInformation.addValueModifyListener(listener);
+		if (connectionInformation != null) {
+			connectionInformation.addValueModifyListener(listener);
+		}
+		
+		if (generationInformation != null) {
+			generationInformation.addValueModifyListener(listener);
+		}
 		
 		if (entityList != null) {
 			for (Entity entity : entityList) {

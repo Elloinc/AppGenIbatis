@@ -31,6 +31,10 @@ public class ValueModifyModel {
 	}
 	
 	public void addValueModifyListener(ValueModifyListener listener) {
+		if (valueModifyListeners.contains(listener)) {
+			return;
+		}
+		
 		valueModifyListeners.add(listener);
 	}
 	
