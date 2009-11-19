@@ -16,6 +16,7 @@
 
 package net.sourceforge.appgen.model;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,14 @@ public class ValueModifyModel {
 		for (ValueModifyListener listener : valueModifyListeners) {
 			listener.valueModified();
 		}
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		// do nothing.
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		// do nothing.
 	}
 
 }
