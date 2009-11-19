@@ -17,6 +17,7 @@
 package net.sourceforge.appgen.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class MappingData implements Serializable {
 	private List<Entity> entityList;
 
 	public MappingData() {
-		this(null, null, null);
+		this(new ConnectionInformation(), new GenerationInformation(), new ArrayList<Entity>());
 	}
 	
 	public MappingData(ConnectionInformation connectionInformation, GenerationInformation generationInformation, List<Entity> entityList) {
