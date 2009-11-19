@@ -61,10 +61,10 @@ public abstract class JdbcConnector {
 
 	public Connection getConnection() throws Exception {
 		Connection connection = null;
-
+		
 		String driverFilePath = connectionInformation.getDriverFile().getPath();
 		String driverClassName = connectionInformation.getDriverClassName();
-
+		
 		URL driverFileUrl = new URL("file:" + driverFilePath);
 		
 		URLClassLoader loader = new URLClassLoader(new URL[] { driverFileUrl }, getClass().getClassLoader());
@@ -75,7 +75,11 @@ public abstract class JdbcConnector {
 		info.put("password", connectionInformation.getPassword() != null ? connectionInformation.getPassword() : "");
 		
 		connection = driver.connect(connectionInformation.getUrl(), info);
-
+		
+		if (connection == null) {
+			throw new RuntimeException("can't connect to the url: " + connectionInformation.getUrl());
+		}
+		
 		return connection;
 	}
 
