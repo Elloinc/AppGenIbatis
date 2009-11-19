@@ -1158,8 +1158,11 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		} else {
 			entityTableViewer.setInput(null);
 		}
-
+		
+		entityTableViewer.getTable().setSelection(-1);
+		
 		currentEntity = null;
+		
 		fieldTableViewer.setInput(null);
 		changeAllFieldSelection();
 	}
@@ -1302,11 +1305,6 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		bindValues();
 		
 		showEntityList(mappingData.getEntityList());
-		
-		entityTableViewer.setInput(mappingData.getEntityList());
-		entityTableViewer.getTable().setSelection(-1);
-		
-		fieldTableViewer.setInput(null);
 	}
 	
 	private void updateSourceFromMapping() {
