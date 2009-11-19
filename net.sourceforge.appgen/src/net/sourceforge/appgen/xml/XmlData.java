@@ -16,9 +16,12 @@
 
 package net.sourceforge.appgen.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,21 +30,22 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import net.sourceforge.appgen.model.ConnectionInformation;
 import net.sourceforge.appgen.model.Entity;
 import net.sourceforge.appgen.model.Field;
 import net.sourceforge.appgen.model.GenerationInformation;
 import net.sourceforge.appgen.model.MappingData;
+
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Byeongkil Woo
@@ -109,6 +113,16 @@ public class XmlData {
 			throw new XmlDataException(e);
 		}
 	}
+	
+	public String getXmlText() throws XmlDataException {
+		try {
+			Document document = createDocument();
+			
+			return getXmlText(document);
+		} catch (Exception e) {
+			throw new XmlDataException(e);
+		}
+	}
 
 	private Document createDocument() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -127,18 +141,34 @@ public class XmlData {
 	}
 
 	private void createXmlFile(File file, Document document) throws IOException, TransformerException {
+		Transformer transformer = newTransformer();
+		
+		FileWriter writer = new FileWriter(file);
+		
+		transformer.transform(new DOMSource(document), new StreamResult(writer));
+	}
+	
+	private String getXmlText(Document document) throws IOException, TransformerException {
+		Transformer transformer = newTransformer();
+		
+		ByteArrayOutputStream writer = new ByteArrayOutputStream();
+		
+		transformer.transform(new DOMSource(document), new StreamResult(writer));
+		
+		return writer.toString();
+	}
+	
+	private Transformer newTransformer() throws TransformerConfigurationException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		transformerFactory.setAttribute("indent-number", new Integer(4));
-
+		
 		Transformer transformer = transformerFactory.newTransformer();
-
-		FileWriter writer = new FileWriter(file);
-
+		transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "4");
 		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-		transformer.transform(new DOMSource(document), new StreamResult(writer));
+		
+		return transformer;
 	}
 
 	private Element createConnectionInformationElement(Document document) {
@@ -246,6 +276,20 @@ public class XmlData {
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document document = builder.parse(file);
 
+		loadMappingData(document);
+	}
+	
+	public void loadFromXml(String text) throws Exception {
+		InputStream in = new ByteArrayInputStream(text.getBytes());
+		
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		Document document = builder.parse(in);
+
+		loadMappingData(document);
+	}
+	
+	private void loadMappingData(Document document) {
 		Element root = document.getDocumentElement();
 		Element connectionInformaitonElement = (Element) root.getElementsByTagName(XmlData.CONNECTION_INFORMATION_TAG_NAME).item(0);
 		Element generationInformationElement = (Element) root.getElementsByTagName(XmlData.GENERATION_INFORMATION_TAG_NAME).item(0);

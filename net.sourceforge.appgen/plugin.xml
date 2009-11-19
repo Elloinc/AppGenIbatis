@@ -8,7 +8,6 @@
             name="AppGen Mapping Editor"
             extensions="xml"
             icon="icons/icon_editor.gif"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="net.sourceforge.appgen.editor.MappingDataEditor"
             id="net.sourceforge.appgen.editor.MappingDataEditor">
       </editor>
