@@ -18,11 +18,7 @@ package net.sourceforge.appgen.wizard;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
-import net.sourceforge.appgen.model.ConnectionInformation;
-import net.sourceforge.appgen.model.Entity;
-import net.sourceforge.appgen.model.GenerationInformation;
 import net.sourceforge.appgen.model.MappingData;
 import net.sourceforge.appgen.xml.XmlData;
 import net.sourceforge.appgen.xml.XmlDataException;
@@ -108,7 +104,7 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 		IContainer container = (IContainer) resource;
 		final IFile file = container.getFile(new Path(fileName));
 
-		MappingData mappingData = new MappingData(new ConnectionInformation(), new GenerationInformation(), new ArrayList<Entity>());
+		MappingData mappingData = new MappingData();
 		XmlData xmlData = new XmlData(mappingData);
 		
 		try {

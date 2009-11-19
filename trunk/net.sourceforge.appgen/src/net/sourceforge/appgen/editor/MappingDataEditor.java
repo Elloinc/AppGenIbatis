@@ -18,12 +18,9 @@ package net.sourceforge.appgen.editor;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.appgen.action.GenerateFileAction;
-import net.sourceforge.appgen.action.SaveMappingAction;
 import net.sourceforge.appgen.connector.JdbcConnector;
 import net.sourceforge.appgen.connector.JdbcConnectorFactory;
 import net.sourceforge.appgen.databinding.ClassNameValidator;
@@ -57,15 +54,13 @@ import net.sourceforge.appgen.support.FieldPositionEditingSupport;
 import net.sourceforge.appgen.support.FieldTableLabelProvider;
 import net.sourceforge.appgen.support.FieldTypeEditingSupport;
 import net.sourceforge.appgen.xml.XmlData;
+import net.sourceforge.appgen.xml.XmlDataException;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.validation.IValidator;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.Action;
@@ -107,16 +102,16 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.dialogs.SaveAsDialog;
-import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.MultiPageEditorPart;
 
 /**
  * Mpping file editor.
  * 
  * @author Byeongkil Woo
  */
-public class MappingDataEditor extends EditorPart {
+public class MappingDataEditor extends MultiPageEditorPart {
 
 	private static final FieldDecoration DEC_ERROR = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
 
@@ -128,6 +123,8 @@ public class MappingDataEditor extends EditorPart {
 	MappingData loadMappingData;
 	
 	MappingData mappingData;
+	
+	private TextEditor textEditor;
 	
 	private Entity currentEntity;
 	private boolean allEntitySelection = false;
@@ -188,7 +185,7 @@ public class MappingDataEditor extends EditorPart {
 	public MappingDataEditor() {
 		super();
 		
-		mappingData = new MappingData(new ConnectionInformation(), new GenerationInformation(), new ArrayList<Entity>());
+		mappingData = new MappingData();
 		
 		consoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		console = new MessageConsole("AppGen", null);
@@ -239,96 +236,6 @@ public class MappingDataEditor extends EditorPart {
 		}
 		
 		super.dispose();
-	}
-
-	@Override
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	@Override
-	public void createPartControl(Composite parent) {
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		final Composite contentComponent = new Composite(scrolledComposite, SWT.NONE);
-		scrolledComposite.setContent(contentComponent);
-		
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 3;
-		contentComponent.setLayout(layout);
-		
-		createConnectionInputPart(contentComponent);
-		createConnectionButtonPart(contentComponent);
-		createEntityTable(contentComponent);
-		createEntityButtonPart(contentComponent);
-		createFieldTable(contentComponent);
-		createFieldButtonPart(contentComponent);
-		createGenerationInputPart(contentComponent);
-		createGenerationButtonPart(contentComponent);
-
-		contentComponent.pack();
-
-		entityTableViewer.setInput(mappingData.getEntityList());
-		
-		bindValues();
-	}
-
-	@Override
-	public void doSave(IProgressMonitor monitor) {
-		XmlData xmlData = new XmlData(mappingData);
-		FileEditorInput fileEditorInput = (FileEditorInput) getEditorInput();
-		URI uri = fileEditorInput.getURI();
-		File file = new File(uri);
-		
-		SaveMappingAction action = new SaveMappingAction(file, xmlData);
-		
-		try {
-			action.run();
-			
-			dirty = false;
-			firePropertyChange(PROP_DIRTY);
-		} catch (Exception e) {
-			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
-		}
-	}
-
-	@Override
-	public void doSaveAs() {
-		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getWorkbenchWindow().getShell());
-		saveAsDialog.setOriginalFile(((FileEditorInput) getEditorInput()).getFile());
-		saveAsDialog.open();
-		
-		IPath path = saveAsDialog.getResult();
-		
-		if (path != null) {
-			IPath rootPath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-			File rootFile = rootPath.toFile();
-			File saveAsFile = new File(rootFile, path.toPortableString());
-			
-			XmlData xmlData = new XmlData(mappingData);
-			
-			SaveMappingAction action = new SaveMappingAction(saveAsFile, xmlData);
-			
-			try {
-				action.run();
-				
-				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-				FileEditorInput input = new FileEditorInput(file);
-				setInputWithNotify(new FileEditorInput(file));
-				setPartName(input.getName());
-				
-				dirty = false;
-				firePropertyChange(PROP_DIRTY);
-				
-				RefreshAction refreshAction = new RefreshAction(getEditorSite());
-				refreshAction.refreshAll();
-			} catch (Exception e) {
-				MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
-			}
-		}
-	}
-
-	@Override
-	public void setFocus() {
 	}
 
 	@Override
@@ -445,29 +352,30 @@ public class MappingDataEditor extends EditorPart {
 					return;
 				}
 
+				List<Entity> entityList = null;
+				
 				try {
 					contentComponent.setEnabled(false);
 
 					JdbcConnector connector = JdbcConnectorFactory.createConnector(connectionInformation);
 
 					try {
-						List<Entity> entityList = connector.getEntityList();
-						
-						mappingData.setEntityList(entityList);
-						
-						mappingData.addValueModifyListener(new DataModifyListener());
-						
-						showEntityList(contentComponent, mappingData.getEntityList());
-						
-						dirty = true;
-						firePropertyChange(PROP_DIRTY);
+						entityList = connector.getEntityList();
 					} catch (Exception e) {
-						mappingData.setEntityList(null);
-						MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+						MessageDialog.openError(getSite().getShell(), "error", e.toString());
 					}
 				} finally {
 					contentComponent.setEnabled(true);
 				}
+				
+				mappingData.setEntityList(entityList);
+				
+				mappingData.addValueModifyListener(new DataModifyListener());
+				
+				showEntityList(mappingData.getEntityList());
+				
+				dirty = true;
+				firePropertyChange(PROP_DIRTY);
 			}
 		});
 	}
@@ -662,7 +570,7 @@ public class MappingDataEditor extends EditorPart {
 
 		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 3;
-		gridData.heightHint = 150;
+		gridData.heightHint = 100;
 		entityTable.setLayoutData(gridData);
 
 		entityTable.addSelectionListener(new SelectionAdapter() {
@@ -764,7 +672,7 @@ public class MappingDataEditor extends EditorPart {
 
 		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 3;
-		gridData.heightHint = 200;
+		gridData.heightHint = 150;
 		fieldTable.setLayoutData(gridData);
 	}
 
@@ -1057,6 +965,21 @@ public class MappingDataEditor extends EditorPart {
 
 		List<Entity> entityList = mappingData.getEntityList();
 		
+		boolean generate = false;
+		if (entityList != null) {
+			for (Entity entity : entityList) {
+				if (entity.isCreate()) {
+					generate = true;
+					break;
+				}
+			}
+		}
+
+		if (!generate) {
+			MessageDialog.openError(getSite().getShell(), "Invalid", "Select entities.");
+			return false;
+		}
+		
 		for (Entity entity : entityList) {
 			if (entity.isCreate()) {
 				boolean validEntity = true;
@@ -1226,25 +1149,10 @@ public class MappingDataEditor extends EditorPart {
 			return false;
 		}
 
-		boolean generate = false;
-		if (entityList != null) {
-			for (Entity entity : entityList) {
-				if (entity.isCreate()) {
-					generate = true;
-					break;
-				}
-			}
-		}
-
-		if (!generate) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", "Select entities.");
-			return false;
-		}
-
 		return true;
 	}
 	
-	private void showEntityList(Composite parent, List<Entity> entityList) {
+	private void showEntityList(List<Entity> entityList) {
 		if (entityList != null) {
 			entityTableViewer.setInput(entityList.toArray());
 		} else {
@@ -1270,6 +1178,149 @@ public class MappingDataEditor extends EditorPart {
 			
 			return false;
 		}
+	}
+
+	@Override
+	protected void createPages() {
+		createMappingPage();
+		createSourcePage();
+	}
+	
+	public void createMappingPage() {
+		Composite parent = getContainer();
+		
+		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		final Composite contentComponent = new Composite(scrolledComposite, SWT.NONE);
+		scrolledComposite.setContent(contentComponent);
+		
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 3;
+		contentComponent.setLayout(layout);
+		
+		createConnectionInputPart(contentComponent);
+		createConnectionButtonPart(contentComponent);
+		createEntityTable(contentComponent);
+		createEntityButtonPart(contentComponent);
+		createFieldTable(contentComponent);
+		createFieldButtonPart(contentComponent);
+		createGenerationInputPart(contentComponent);
+		createGenerationButtonPart(contentComponent);
+
+		contentComponent.pack();
+
+		entityTableViewer.setInput(mappingData.getEntityList());
+		
+		bindValues();
+		
+		int index = addPage(scrolledComposite);
+		setPageText(index, "Mapping");
+	}
+	
+	public void createSourcePage() {
+		try {
+			textEditor = new TextEditor();
+			int index = addPage(textEditor, getEditorInput());
+			
+			setPageText(index, "Source");
+		} catch (PartInitException e) {
+		}
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirty || super.isDirty();
+	}
+	
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		if (getActivePage() == 0) {
+			updateSourceFromMapping();
+		}
+		if (getActivePage() == 1) {
+			updateMappingFromSource();
+		}
+		
+		textEditor.doSave(monitor);
+		
+		dirty = false;
+		firePropertyChange(PROP_DIRTY);
+	}
+
+	@Override
+	public void doSaveAs() {
+		textEditor.doSaveAs();
+		
+		setInput(textEditor.getEditorInput());
+		setPartName(textEditor.getEditorInput().getName());
+		
+		dirty = false;
+		firePropertyChange(PROP_DIRTY);
+	}
+	
+	@Override
+	public void setFocus() {
+		if (getActivePage() == 0 && !isDirty()) {
+			updateMappingFromSource();
+		}
+	}
+	
+	@Override
+	protected void pageChange(int newPageIndex) {
+		switch (newPageIndex) {
+		case 0:
+			if (isDirty()) {
+				updateMappingFromSource();
+			}
+			break;
+		case 1:
+			if (isDirty()) {
+				updateSourceFromMapping();
+			}
+			break;
+		}
+		
+		super.pageChange(newPageIndex);
+	}
+	
+	private void updateMappingFromSource() {
+		String text = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()).get();
+		
+		XmlData xmlData = new XmlData();
+		
+		mappingData = new MappingData();
+		
+		try {
+			xmlData.loadFromXml(text);
+			
+			mappingData = xmlData.getMappingData();
+		} catch (Exception e) {
+			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+		}
+		
+		mappingData.addValueModifyListener(new DataModifyListener());
+
+		bindValues();
+		
+		showEntityList(mappingData.getEntityList());
+		
+		entityTableViewer.setInput(mappingData.getEntityList());
+		entityTableViewer.getTable().setSelection(-1);
+		
+		fieldTableViewer.setInput(null);
+	}
+	
+	private void updateSourceFromMapping() {
+		XmlData xmlData = new XmlData(mappingData);
+		
+		String text = "";
+		
+		try {
+			text = xmlData.getXmlText();
+		} catch (XmlDataException e) {
+			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+		}
+		
+		textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()).set(text);
 	}
 	
 }
