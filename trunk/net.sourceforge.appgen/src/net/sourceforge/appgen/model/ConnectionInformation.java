@@ -29,6 +29,14 @@ public class ConnectionInformation extends ValueModifyModel implements Serializa
 	public static final String DATABASE_TYPE_ORACLE = "Oracle";
 
 	public static final String DATABASE_TYPE_MYSQL = "MySql";
+	
+	public static final String DEFAULT_CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@127.0.0.1:1521:YOURDATABASE";
+	
+	public static final String DEFAULT_CONNECTION_URL_MYSQL = "jdbc:mysql://127.0.0.1:3306/yourdatabase?characterEncoding=utf-8";
+	
+	public static final String DEFAULT_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
+	
+	public static final String DEFAULT_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
 
 	private String databaseType;
 
@@ -48,6 +56,36 @@ public class ConnectionInformation extends ValueModifyModel implements Serializa
 
 	public static String[] getDatabaseTypes() {
 		return new String[] { DATABASE_TYPE_ORACLE, DATABASE_TYPE_MYSQL };
+	}
+	
+	public static String[] getDefaultConnectionUrls() {
+		return new String[] { DEFAULT_CONNECTION_URL_ORACLE, DEFAULT_CONNECTION_URL_MYSQL };
+	}
+	
+	public static String[] getDefaultDriverClassNames() {
+		return new String[] { DEFAULT_DRIVER_CLASS_NAME_ORACLE, DEFAULT_DRIVER_CLASS_NAME_MYSQL };
+	}
+	
+	public static String getDefaultConnectionUrl(String databaseType) {
+		for (int i = 0; i < getDatabaseTypes().length; i++) {
+			String type = getDatabaseTypes()[i];
+			if (type.equals(databaseType)) {
+				return getDefaultConnectionUrls()[i];
+			}
+		}
+		
+		return null;
+	}
+	
+	public static String getDefaultDriverClassName(String databaseType) {
+		for (int i = 0; i < getDatabaseTypes().length; i++) {
+			String type = getDatabaseTypes()[i];
+			if (type.equals(databaseType)) {
+				return getDefaultDriverClassNames()[i];
+			}
+		}
+		
+		return null;
 	}
 
 	@Override

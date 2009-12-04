@@ -717,6 +717,38 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		databaseTypeValidator = new DatabaseTypeValidator();
 
 		addModifyListener(contentComponent, databaseTypeCombo, databaseTypeControlDecoration, databaseTypeValidator);
+		
+		databaseTypeCombo.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				IStatus status = databaseTypeValidator.validate(databaseTypeCombo.getText());
+				if (status.isOK()) {
+					String databaseType = databaseTypeCombo.getText();
+					
+					String defaultConnectionUrl = ConnectionInformation.getDefaultConnectionUrl(databaseType);
+					String defaultDriverClassName = ConnectionInformation.getDefaultDriverClassName(databaseType);
+					
+					// String url = urlText.getText();
+					// String driverClassName = driverClassNameText.getText();
+					
+					// boolean updateUrl = (url == null || url.length() == 0);
+					// boolean updateDriverClassName = (driverClassName == null || driverClassName.length() == 0);
+					
+					boolean updateUrl = true;
+					boolean updateDriverClassName = true;
+					
+					if (updateUrl) {
+						if (defaultConnectionUrl != null) {
+							urlText.setText(defaultConnectionUrl);
+						}
+					}
+					if (updateDriverClassName) {
+						if (defaultDriverClassName != null) {
+							driverClassNameText.setText(defaultDriverClassName);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	private void createUrlText(final Composite contentComponent) {
