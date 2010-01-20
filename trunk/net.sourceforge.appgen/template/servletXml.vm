@@ -118,11 +118,11 @@
 		<aop:advisor pointcut-ref="invocationPointcut" advice-ref="methodInvocationLoggingAdvice"/>
 	</aop:config>
 	
-	<bean id="methodInvocationLoggingAdvice" class="${entity.getPackageName()}.logging.MethodInvocationLoggingAdvice">
+	<bean id="methodInvocationLoggingAdvice" class="${packageName}.logging.MethodInvocationLoggingAdvice">
 		<property name="methodInvocationLogger" ref="methodInvocationLogger"/>
 	</bean>
 	
-	<bean id="methodInvocationLogger" class="${entity.getPackageName()}.logging.DefaultMethodInvocationLogger"/>	
+	<bean id="methodInvocationLogger" class="${packageName}.logging.DefaultMethodInvocationLogger"/>	
 	
 	<!-- Data source -->
 	
@@ -190,7 +190,7 @@
 	
 	<!-- Interceptors -->
 	
-	<bean id="methodInvocationInfoInterceptor" class="${entity.getPackageName()}.logging.MethodInvocationInfoInterceptor"/>
+	<bean id="methodInvocationInfoInterceptor" class="${packageName}.logging.MethodInvocationInfoInterceptor"/>
 		
 	<!-- Controllers -->
 	
