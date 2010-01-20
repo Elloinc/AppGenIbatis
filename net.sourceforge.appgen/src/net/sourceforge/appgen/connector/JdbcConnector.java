@@ -34,10 +34,18 @@ import net.sourceforge.appgen.model.Entity;
 public abstract class JdbcConnector {
 
 	private ConnectionInformation connectionInformation;
-	
+
 	private StringConverter baseNameConverter = new CamelCaseConverter();
-	
+
 	private StringConverter fieldNameConverter = new CamelCaseConverter();
+
+	public ConnectionInformation getConnectionInformation() {
+		return connectionInformation;
+	}
+
+	public void setConnectionInformation(ConnectionInformation connectionInformation) {
+		this.connectionInformation = connectionInformation;
+	}
 
 	public StringConverter getBaseNameConverter() {
 		return baseNameConverter;
@@ -61,25 +69,25 @@ public abstract class JdbcConnector {
 
 	public Connection getConnection() throws Exception {
 		Connection connection = null;
-		
+
 		String driverFilePath = connectionInformation.getDriverFile().getPath();
 		String driverClassName = connectionInformation.getDriverClassName();
-		
+
 		URL driverFileUrl = new URL("file:" + driverFilePath);
-		
+
 		URLClassLoader loader = new URLClassLoader(new URL[] { driverFileUrl }, getClass().getClassLoader());
-		
+
 		Driver driver = (Driver) loader.loadClass(driverClassName).newInstance();
 		Properties info = new Properties();
 		info.put("user", connectionInformation.getUser());
 		info.put("password", connectionInformation.getPassword() != null ? connectionInformation.getPassword() : "");
-		
+
 		connection = driver.connect(connectionInformation.getUrl(), info);
-		
+
 		if (connection == null) {
 			throw new RuntimeException("can't connect to the url: " + connectionInformation.getUrl());
 		}
-		
+
 		return connection;
 	}
 
