@@ -38,12 +38,14 @@ public class MethodInvocationInfoInterceptor implements HandlerInterceptor {
 	private static final Log logger = LogFactory.getLog(MethodInvocationInfoInterceptor.class);
 	
 	public static final ThreadLocal<List<String>> MESSAGE_LIST_CONTEXT = new ThreadLocal<List<String>>() {
+		@Override
 		protected List<String> initialValue() {
 			return new ArrayList<String>();
 		}
 	};
 	
 	public static final ThreadLocal<Integer> METHOD_DEPTH_CONTEXT = new ThreadLocal<Integer>() {
+		@Override
 		protected Integer initialValue() {
 			return new Integer(0);
 		}
