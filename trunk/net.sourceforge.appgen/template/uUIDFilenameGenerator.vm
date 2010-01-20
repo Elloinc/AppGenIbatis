@@ -29,12 +29,10 @@ import org.springframework.util.StringUtils;
  */
 public class UUIDFilenameGenerator implements FilenameGenerator {
 	
-	@Override
 	public String generate(String originFilename) {
 		return generate(originFilename, true);
 	}
 	
-	@Override
 	public String generate(String originFilename, boolean appendExtension) {
 		String filename = new SimpleDateFormat("yyyyMMddHHmm").format(new Date()) + "-" + UUID.randomUUID().toString();
 
