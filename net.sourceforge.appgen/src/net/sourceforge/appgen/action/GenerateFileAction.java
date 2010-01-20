@@ -220,7 +220,9 @@ public class GenerateFileAction extends Action {
 								
 								File file = fileGenerator.generate(entity);
 								
-								generatedFileList.add(file);
+								if (file != null) {
+									generatedFileList.add(file);
+								}
 							} catch (Exception e) {
 								MessageDialog.openError(editor.getSite().getShell(), "error", e.getMessage());
 							}
