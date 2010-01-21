@@ -260,7 +260,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 			
 			mappingData.addValueModifyListener(new DataModifyListener());
 		} catch (Exception e) {
-			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+			MessageDialog.openError(getSite().getShell(), "Error - loadData", e.getMessage());
 		}
 	}
 
@@ -362,7 +362,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 					try {
 						entityList = connector.getEntityList();
 					} catch (Exception e) {
-						MessageDialog.openError(getSite().getShell(), "error", e.toString());
+						MessageDialog.openError(getSite().getShell(), "Error - widgetSelected", e.toString());
 					}
 				} finally {
 					contentComponent.setEnabled(true);
@@ -1329,7 +1329,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 			
 			mappingData = xmlData.getMappingData();
 		} catch (Exception e) {
-			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+			// MessageDialog.openError(getSite().getShell(), "Error - updateMappingFromSource", e.getMessage());
 		}
 		
 		mappingData.addValueModifyListener(new DataModifyListener());
@@ -1347,7 +1347,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		try {
 			text = xmlData.getXmlText();
 		} catch (XmlDataException e) {
-			MessageDialog.openError(getSite().getShell(), "error", e.getMessage());
+			// MessageDialog.openError(getSite().getShell(), "Error - updateSourceFromMapping", e.getMessage());
 		}
 		
 		textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()).set(text);

@@ -88,16 +88,18 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 			return false;
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
-			MessageDialog.openError(getShell(), "Error", realException.getMessage());
+			MessageDialog.openError(getShell(), "Error - InvocationTargetException", realException.getMessage());
 			return false;
 		}
 		return true;
 	}
 
-	private void doFinish(String containerName, String fileName, IProgressMonitor monitor) throws CoreException {
+	private void doFinish(String containerName, String fileName, final IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask("Creating " + fileName, 2);
+		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
+		
 		if (!resource.exists() || !(resource instanceof IContainer)) {
 			throwCoreException("Container \"" + containerName + "\" does not exist.");
 		}
@@ -111,11 +113,13 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 			File saveAsFile = new File(file.getLocation().toPortableString());
 			xmlData.saveToXml(saveAsFile);
 		} catch (XmlDataException e) {
-			MessageDialog.openError(getShell(), "Error", e.getMessage());
+			MessageDialog.openError(getShell(), "Error - XmlDataException", e.getMessage());
 		}
 
 		monitor.worked(1);
+		
 		monitor.setTaskName("Opening file for editing...");
+		
 		getShell().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				RefreshAction refreshAction = new RefreshAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
@@ -126,10 +130,13 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 				try {
 					IDE.openEditor(page, file, "net.sourceforge.appgen.editor.MappingDataEditor", true);
 				} catch (PartInitException e) {
-					MessageDialog.openError(getShell(), "Error", e.getMessage());
+					MessageDialog.openError(getShell(), "Error - PartInitException", e.getMessage());
 				}
+				
+				file.getParent().getWorkspace().getSynchronizer().notifyAll();
 			}
 		});
+		
 		monitor.worked(1);
 	}
 
