@@ -224,7 +224,7 @@ public class GenerateFileAction extends Action {
 									generatedFileList.add(file);
 								}
 							} catch (Exception e) {
-								MessageDialog.openError(editor.getSite().getShell(), "error", e.getMessage());
+								MessageDialog.openError(editor.getSite().getShell(), "Error - generate", e.getMessage());
 							}
 						}
 						
