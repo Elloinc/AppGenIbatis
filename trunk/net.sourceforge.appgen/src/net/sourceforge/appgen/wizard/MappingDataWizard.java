@@ -16,7 +16,9 @@
 
 package net.sourceforge.appgen.wizard;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import net.sourceforge.appgen.model.MappingData;
@@ -43,7 +45,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.RefreshAction;
 import org.eclipse.ui.ide.IDE;
 
 /**
@@ -110,10 +111,14 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 		XmlData xmlData = new XmlData(mappingData);
 		
 		try {
-			File saveAsFile = new File(file.getLocation().toPortableString());
-			xmlData.saveToXml(saveAsFile);
+			String xmlText = xmlData.getXmlText();
+			InputStream in = new ByteArrayInputStream(xmlText.getBytes());
+			file.create(in, true, monitor);
+			in.close();
 		} catch (XmlDataException e) {
 			MessageDialog.openError(getShell(), "Error - XmlDataException", e.getMessage());
+		} catch (IOException e) {
+			MessageDialog.openError(getShell(), "Error - IOException", e.getMessage());
 		}
 
 		monitor.worked(1);
@@ -122,9 +127,6 @@ public class MappingDataWizard extends Wizard implements INewWizard {
 		
 		getShell().getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				RefreshAction refreshAction = new RefreshAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-				refreshAction.refreshAll();
-				
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				
 				try {
