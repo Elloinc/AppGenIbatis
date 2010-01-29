@@ -300,10 +300,6 @@ public class ProfileConnector {
 				field.setNullable(nullable);
 				field.setCreate(true);
 				
-				//---
-				// System.out.println("typeName: " + typeName + ", dataType: " + dataType + ", fieldType: " + fieldType + ", columnSize: " + columnSize + ", decimalDegit: " + decimalDegit);
-				//---
-				
 				fieldList.add(field);
 			}
 			
