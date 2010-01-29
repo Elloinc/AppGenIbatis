@@ -20,18 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.sourceforge.appgen.action.GenerateFileAction;
-import net.sourceforge.appgen.connector.JdbcConnector;
-import net.sourceforge.appgen.connector.JdbcConnectorFactory;
-import net.sourceforge.appgen.databinding.ClassNameValidator;
-import net.sourceforge.appgen.databinding.DatabaseTypeValidator;
+import net.sourceforge.appgen.connector.ProfileConnector;
+import net.sourceforge.appgen.databinding.DatabaseNameValidator;
 import net.sourceforge.appgen.databinding.DirectoryValidator;
-import net.sourceforge.appgen.databinding.FileValidator;
 import net.sourceforge.appgen.databinding.PackageNameValidator;
-import net.sourceforge.appgen.databinding.PasswordValidator;
 import net.sourceforge.appgen.databinding.StringToFileConverter;
-import net.sourceforge.appgen.databinding.UrlValidator;
-import net.sourceforge.appgen.databinding.UserValidator;
+import net.sourceforge.appgen.job.GenerateFileJob;
+import net.sourceforge.appgen.job.GetEntityListJob;
 import net.sourceforge.appgen.model.ConnectionInformation;
 import net.sourceforge.appgen.model.Entity;
 import net.sourceforge.appgen.model.Field;
@@ -63,8 +58,9 @@ import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.action.Action;
+import org.eclipse.datatools.connectivity.db.generic.ui.wizard.NewJDBCFilteredCPWizard;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
@@ -74,6 +70,7 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
@@ -87,7 +84,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -96,7 +92,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.actions.RefreshAction;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
@@ -120,9 +116,9 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	public static final String CHECKED_IMAGE = "header_checked";
 	public static final String UNCHECKED_IMAGE = "header_unchecked";
 
-	MappingData loadMappingData;
+	// private MappingData loadMappingData;
 	
-	MappingData mappingData;
+	private MappingData mappingData;
 	
 	private TextEditor textEditor;
 	
@@ -133,30 +129,11 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	private MessageConsoleStream stream;
 	private IConsoleManager consoleManager;
 
-	private Combo databaseTypeCombo;
-	private Text urlText;
-	private Text userText;
-	private Text passwordText;
-	private Text driverFileText;
-	private Text driverClassNameText;
+	private Combo databaseNameCombo;
+	private Text databaseSchemaText;
 
-	private ControlDecoration databaseTypeControlDecoration;
-	private IValidator databaseTypeValidator;
-
-	private ControlDecoration urlControlDecoration;
-	private IValidator urlValidator;
-
-	private ControlDecoration userControlDecoration;
-	private IValidator userValidator;
-
-	private ControlDecoration passwordControlDecoration;
-	private IValidator passwordValidator;
-
-	private ControlDecoration driverFileControlDecoration;
-	private IValidator driverFileValidator;
-
-	private ControlDecoration driverClassNameControlDecoration;
-	private IValidator driverClassNameValidator;
+	private ControlDecoration databaseNameControlDecoration;
+	private IValidator databaseNameValidator;
 
 	private TableViewer entityTableViewer;
 	private TableViewer fieldTableViewer;
@@ -181,6 +158,8 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	private DataBindingContext dataBindingContext;
 	
 	private boolean dirty;
+	
+	private MappingDataEditor editor;
 
 	public MappingDataEditor() {
 		super();
@@ -194,6 +173,8 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		consoleManager.showConsoleView(console);
 		
 		initImageRegistry();
+		
+		editor = this;
 	}
 	
 	private void initImageRegistry() {
@@ -263,6 +244,17 @@ public class MappingDataEditor extends MultiPageEditorPart {
 			MessageDialog.openError(getSite().getShell(), "Error - loadData", e.getMessage());
 		}
 	}
+	
+	public void onEntityListChanged(List<Entity> entityList) {
+		mappingData.setEntityList(entityList);
+		
+		mappingData.addValueModifyListener(new DataModifyListener());
+		
+		showEntityList(mappingData.getEntityList());
+		
+		dirty = true;
+		firePropertyChange(PROP_DIRTY);
+	}
 
 	private void createConnectionInputPart(final Composite contentComponent) {
 		GridData gridData;
@@ -273,65 +265,37 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		gridData.horizontalSpan = 3;
 		heading.setLayoutData(gridData);
 
-		Label databseTypeLabel = new Label(contentComponent, SWT.LEFT);
-		databseTypeLabel.setText("Database Type:");
+		Label databaseLabel = new Label(contentComponent, SWT.LEFT);
+		databaseLabel.setText("Database Profile:");
 
-		createDatabaseTypeCombo(contentComponent);
+		createDatabaseNameCombo(contentComponent);
 		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gridData.horizontalSpan = 2;
-		databaseTypeCombo.setLayoutData(gridData);
-
-		Label urlLabel = new Label(contentComponent, SWT.LEFT);
-		urlLabel.setText("URL:");
-
-		createUrlText(contentComponent);
-		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gridData.horizontalSpan = 2;
-		urlText.setLayoutData(gridData);
-
-		Label userLabel = new Label(contentComponent, SWT.LEFT);
-		userLabel.setText("User:");
-
-		createUserText(contentComponent);
-		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gridData.horizontalSpan = 2;
-		userText.setLayoutData(gridData);
-
-		Label passwordLabel = new Label(contentComponent, SWT.LEFT);
-		passwordLabel.setText("Password:");
-
-		createPasswordText(contentComponent);
-		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gridData.horizontalSpan = 2;
-		passwordText.setLayoutData(gridData);
-
-		Label driverFileLabel = new Label(contentComponent, SWT.LEFT);
-		driverFileLabel.setText("Driver file:");
-
-		createDriverFileText(contentComponent);
-		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		driverFileText.setLayoutData(gridData);
-
-		Button driverFileButton = new Button(contentComponent, SWT.BUTTON1);
-		driverFileButton.setText("Browse...");
-
-		driverFileButton.addSelectionListener(new SelectionAdapter() {
+		databaseNameCombo.setLayoutData(gridData);
+		
+		Button createNewProfileButton = new Button(contentComponent, SWT.BUTTON1);
+		createNewProfileButton.setText("New...");
+		
+		createNewProfileButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				FileDialog fileDialog = new FileDialog(driverFileText.getShell(), SWT.OPEN);
-				fileDialog.setFilterExtensions(new String[] { "*.jar", "*.zip" });
-				String selected = fileDialog.open();
-				driverFileText.setText(selected);
+				NewJDBCFilteredCPWizard wizard = new NewJDBCFilteredCPWizard();
+				wizard.init(PlatformUI.getWorkbench(), null);
+				WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+				int value = dialog.open();
+				if (value == Dialog.OK) {
+					refreshDatabaseNameCombo();
+				}
 			}
 		});
-
-		Label driverClassNameLabel = new Label(contentComponent, SWT.LEFT);
-		driverClassNameLabel.setText("Driver class name:");
-
-		createDriverClassNameText(contentComponent);
+		
+		Label schemaLabel = new Label(contentComponent, SWT.LEFT);
+		schemaLabel.setText("Database Schema:");
+		
+		databaseSchemaText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
+		
 		gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gridData.horizontalSpan = 2;
-		driverClassNameText.setLayoutData(gridData);
+		databaseSchemaText.setLayoutData(gridData);
 	}
 
 	private void createConnectionButtonPart(final Composite contentComponent) {
@@ -351,31 +315,15 @@ public class MappingDataEditor extends MultiPageEditorPart {
 				if (!validateConnectionInformation()) {
 					return;
 				}
-
-				List<Entity> entityList = null;
 				
 				try {
 					contentComponent.setEnabled(false);
-
-					JdbcConnector connector = JdbcConnectorFactory.createConnector(connectionInformation);
-
-					try {
-						entityList = connector.getEntityList();
-					} catch (Exception e) {
-						MessageDialog.openError(getSite().getShell(), "Error - widgetSelected", e.toString());
-					}
+					
+					GetEntityListJob getEntityListJob = new GetEntityListJob(connectionInformation, editor, "Parse database - " + connectionInformation.getName());
+					getEntityListJob.schedule();
 				} finally {
 					contentComponent.setEnabled(true);
 				}
-				
-				mappingData.setEntityList(entityList);
-				
-				mappingData.addValueModifyListener(new DataModifyListener());
-				
-				showEntityList(mappingData.getEntityList());
-				
-				dirty = true;
-				firePropertyChange(PROP_DIRTY);
 			}
 		});
 	}
@@ -603,7 +551,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		fieldTable.setHeaderVisible(true);
 		fieldTable.setLinesVisible(true);
 
-		String[] columnNames = new String[] { "", "Column name", "Column type", "Column length", "PK", "Nullable", "Lob", "Field name", "Field type", "", "" };
+		String[] columnNames = new String[] { "", "Column name", "Column type", "Column size", "PK", "Nullable", "Lob", "Field name", "Field type", "", "" };
 		int[] columnWidths = new int[] { 40, 150, 100, 100, 50, 70, 60, 130, 130, 25, 25 };
 		int[] columnAlignments = new int[] { SWT.CENTER, SWT.LEFT, SWT.LEFT, SWT.RIGHT, SWT.RIGHT, SWT.RIGHT, SWT.RIGHT, SWT.LEFT, SWT.LEFT, SWT.CENTER, SWT.CENTER };
 
@@ -707,105 +655,25 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		packageNameText.setLayoutData(gridData);
 	}
 
-	private void createDatabaseTypeCombo(final Composite contentComponent) {
-		databaseTypeCombo = new Combo(contentComponent, SWT.READ_ONLY);
-		databaseTypeCombo.setItems(ConnectionInformation.getDatabaseTypes());
-
-		databaseTypeControlDecoration = new ControlDecoration(databaseTypeCombo, SWT.LEFT | SWT.TOP);
-		databaseTypeControlDecoration.setImage(DEC_ERROR.getImage());
-
-		databaseTypeValidator = new DatabaseTypeValidator();
-
-		addModifyListener(contentComponent, databaseTypeCombo, databaseTypeControlDecoration, databaseTypeValidator);
+	private void createDatabaseNameCombo(final Composite contentComponent) {
+		databaseNameCombo = new Combo(contentComponent, SWT.READ_ONLY);
 		
-		databaseTypeCombo.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				IStatus status = databaseTypeValidator.validate(databaseTypeCombo.getText());
-				if (status.isOK()) {
-					String databaseType = databaseTypeCombo.getText();
-					
-					String defaultConnectionUrl = ConnectionInformation.getDefaultConnectionUrl(databaseType);
-					String defaultDriverClassName = ConnectionInformation.getDefaultDriverClassName(databaseType);
-					
-					// String url = urlText.getText();
-					// String driverClassName = driverClassNameText.getText();
-					
-					// boolean updateUrl = (url == null || url.length() == 0);
-					// boolean updateDriverClassName = (driverClassName == null || driverClassName.length() == 0);
-					
-					boolean updateUrl = true;
-					boolean updateDriverClassName = true;
-					
-					if (updateUrl) {
-						if (defaultConnectionUrl != null) {
-							urlText.setText(defaultConnectionUrl);
-						}
-					}
-					if (updateDriverClassName) {
-						if (defaultDriverClassName != null) {
-							driverClassNameText.setText(defaultDriverClassName);
-						}
-					}
-				}
-			}
-		});
+		refreshDatabaseNameCombo();
+
+		databaseNameControlDecoration = new ControlDecoration(databaseNameCombo, SWT.LEFT | SWT.TOP);
+		databaseNameControlDecoration.setImage(DEC_ERROR.getImage());
+
+		databaseNameValidator = new DatabaseNameValidator();
+
+		addModifyListener(contentComponent, databaseNameCombo, databaseNameControlDecoration, databaseNameValidator);
 	}
-
-	private void createUrlText(final Composite contentComponent) {
-		urlText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
-
-		urlControlDecoration = new ControlDecoration(urlText, SWT.LEFT | SWT.TOP);
-		urlControlDecoration.setImage(DEC_ERROR.getImage());
-
-		urlValidator = new UrlValidator();
-
-		addModifyListener(contentComponent, urlText, urlControlDecoration, urlValidator);
+	
+	private void refreshDatabaseNameCombo() {
+		String[] profileNames = ProfileConnector.getProfileNames();
+		
+		databaseNameCombo.setItems(profileNames);
 	}
-
-	private void createUserText(final Composite contentComponent) {
-		userText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
-
-		userControlDecoration = new ControlDecoration(userText, SWT.LEFT | SWT.TOP);
-		userControlDecoration.setImage(DEC_ERROR.getImage());
-
-		userValidator = new UserValidator();
-
-		addModifyListener(contentComponent, userText, userControlDecoration, userValidator);
-	}
-
-	private void createPasswordText(final Composite contentComponent) {
-		passwordText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
-
-		passwordControlDecoration = new ControlDecoration(passwordText, SWT.LEFT | SWT.TOP);
-		passwordControlDecoration.setImage(DEC_ERROR.getImage());
-
-		passwordValidator = new PasswordValidator();
-
-		addModifyListener(contentComponent, passwordText, passwordControlDecoration, passwordValidator);
-	}
-
-	private void createDriverFileText(final Composite contentComponent) {
-		driverFileText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
-
-		driverFileControlDecoration = new ControlDecoration(driverFileText, SWT.LEFT | SWT.TOP);
-		driverFileControlDecoration.setImage(DEC_ERROR.getImage());
-
-		driverFileValidator = new FileValidator();
-
-		addModifyListener(contentComponent, driverFileText, driverFileControlDecoration, driverFileValidator);
-	}
-
-	private void createDriverClassNameText(final Composite contentComponent) {
-		driverClassNameText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
-
-		driverClassNameControlDecoration = new ControlDecoration(driverClassNameText, SWT.LEFT | SWT.TOP);
-		driverClassNameControlDecoration.setImage(DEC_ERROR.getImage());
-
-		driverClassNameValidator = new ClassNameValidator();
-
-		addModifyListener(contentComponent, driverClassNameText, driverClassNameControlDecoration, driverClassNameValidator);
-	}
-
+	
 	private void createOutputDirText(final Composite contentComponent) {
 		outputDirText = new Text(contentComponent, SWT.SINGLE | SWT.BORDER);
 
@@ -883,11 +751,12 @@ public class MappingDataEditor extends MultiPageEditorPart {
 				try {
 					contentComponent.setEnabled(false);
 					
-					Action GenerateFileAction = new GenerateFileAction(mappingData, MappingDataEditor.this, "Generate file...");
-					GenerateFileAction.run();
+					GenerateFileJob GenerateFileAction = new GenerateFileJob(mappingData, MappingDataEditor.this, "Generate file...");
+					GenerateFileAction.schedule();
 				
-					RefreshAction refreshAction = new RefreshAction(getEditorSite());
-					refreshAction.refreshAll();
+					// TODO:
+					// RefreshAction refreshAction = new RefreshAction(getEditorSite());
+					// refreshAction.refreshAll();
 				} finally {
 					contentComponent.setEnabled(true);
 				}
@@ -905,13 +774,9 @@ public class MappingDataEditor extends MultiPageEditorPart {
 		ConnectionInformation connectionInformation = mappingData.getConnectionInformation();
 		GenerationInformation generationInformation = mappingData.getGenerationInformation();
 
-		dataBindingContext.bindValue(SWTObservables.observeSelection(databaseTypeCombo), BeansObservables.observeValue(connectionInformation, "databaseType"), null, null);
-		dataBindingContext.bindValue(SWTObservables.observeText(urlText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "url"), null, null);
-		dataBindingContext.bindValue(SWTObservables.observeText(userText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "user"), null, null);
-		dataBindingContext.bindValue(SWTObservables.observeText(passwordText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "password"), null, null);
-		dataBindingContext.bindValue(SWTObservables.observeText(driverFileText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "driverFile"), fileUpdateValueStrategy, null);
-		dataBindingContext.bindValue(SWTObservables.observeText(driverClassNameText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "driverClassName"), null, null);
-
+		dataBindingContext.bindValue(SWTObservables.observeSelection(databaseNameCombo), BeansObservables.observeValue(connectionInformation, "name"), null, null);
+		dataBindingContext.bindValue(SWTObservables.observeText(databaseSchemaText, SWT.Modify), BeansObservables.observeValue(connectionInformation, "schema"), null, null);
+		
 		dataBindingContext.bindValue(SWTObservables.observeText(outputDirText, SWT.Modify), BeansObservables.observeValue(generationInformation, "outputDir"), fileUpdateValueStrategy, null);
 		dataBindingContext.bindValue(SWTObservables.observeText(packageNameText, SWT.Modify), BeansObservables.observeValue(generationInformation, "packageName"), null, null);
 	}
@@ -947,49 +812,43 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	private boolean validateConnectionInformation() {
 		IStatus status;
 
-		status = databaseTypeValidator.validate(databaseTypeCombo.getText());
+		status = databaseNameValidator.validate(databaseNameCombo.getText());
 		if (!status.isOK()) {
 			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			databaseTypeCombo.setFocus();
+			databaseNameCombo.setFocus();
 			return false;
 		}
 
-		status = urlValidator.validate(urlText.getText());
-		if (!status.isOK()) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			urlText.setFocus();
-			return false;
+		boolean validDatabaseSchema = false;
+		String databaseSchema = databaseSchemaText.getText();
+		
+		ProfileConnector connector = new ProfileConnector(mappingData.getConnectionInformation());
+		connector.connect();
+		String[] schemas = connector.getSchemas();
+		
+		String allowedSchemaText = "";
+		if (schemas.length > 0) {
+			for (String schema : schemas) {
+				if (schema.equals(databaseSchema)) {
+					validDatabaseSchema = true;
+				}
+				if (allowedSchemaText.length() > 0) {
+					allowedSchemaText += ", ";
+				}
+				allowedSchemaText += schema;
+			}
+		} else {
+			if (databaseSchema.length() == 0) {
+				validDatabaseSchema = true;
+			}
+		}
+		
+		if (!validDatabaseSchema) {
+			MessageDialog.openError(getSite().getShell(), "Invalid", "Invalid schema name: " + databaseSchema + "\n" + "allowed schema names: \n" + allowedSchemaText);
+			databaseSchemaText.setFocus();
 		}
 
-		status = userValidator.validate(userText.getText());
-		if (!status.isOK()) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			userText.setFocus();
-			return false;
-		}
-
-		status = passwordValidator.validate(passwordText.getText());
-		if (!status.isOK()) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			passwordText.setFocus();
-			return false;
-		}
-
-		status = driverFileValidator.validate(driverFileText.getText());
-		if (!status.isOK()) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			driverFileText.setFocus();
-			return false;
-		}
-
-		status = driverClassNameValidator.validate(driverClassNameText.getText());
-		if (!status.isOK()) {
-			MessageDialog.openError(getSite().getShell(), "Invalid", status.getMessage());
-			driverClassNameText.setFocus();
-			return false;
-		}
-
-		return true;
+		return validDatabaseSchema;
 	}
 
 	private boolean validateGenerationInformation() {
@@ -1098,7 +957,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 							validField = false;
 						}
 						if (validField && !field.isValidColumnLength()) {
-							MessageDialog.openError(getSite().getShell(), "Invalid", "Column length '" + field.getColumnLength() + "' is invalid.");
+							MessageDialog.openError(getSite().getShell(), "Invalid", "Column size '" + field.getColumnSize() + "' is invalid.");
 							validField = false;							
 						}
 						if (validField && !field.isValidNullable()) {

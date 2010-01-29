@@ -23,14 +23,14 @@ import org.eclipse.core.runtime.IStatus;
 /**
  * @author Byeongkil Woo
  */
-public class DatabaseTypeValidator implements IValidator {
+public class DatabaseNameValidator implements IValidator {
 
 	public IStatus validate(Object value) {
 		if (value instanceof String) {
 			String s = (String) value;
 			
 			if (s.length() == 0) {
-				return ValidationStatus.error("Select the database type.");
+				return ValidationStatus.error("Select the database.");
 			}
 			
 			return ValidationStatus.OK_STATUS;

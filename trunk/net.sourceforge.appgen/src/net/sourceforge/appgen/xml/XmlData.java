@@ -56,12 +56,8 @@ public class XmlData {
 
 	public static final String CONNECTION_INFORMATION_TAG_NAME = "connectionInformation";
 
-	public static final String DATABASE_TYPE_TAG_NAME = "databaseType";
-	public static final String URL_TAG_NAME = "url";
-	public static final String USER_TAG_NAME = "user";
-	public static final String PASSWORD_TAG_NAME = "password";
-	public static final String DRIVER_FILE_TAG_NAME = "driverFile";
-	public static final String DRIVER_CLASS_NAME_TAG_NAME = "driverClassName";
+	public static final String DATABASE_NAME_TAG_NAME = "databaseName";
+	public static final String DATABASE_SCHEMA_TAG_NAME = "databaseSchema";
 
 	public static final String GENERATION_INFORMATION_TAG_NAME = "generationInformation";
 
@@ -92,7 +88,7 @@ public class XmlData {
 	public static final String XSI_NAMESPACE_URI = "http://www.w3.org/2001/XMLSchema-instance";
 	public static final String NAMESPACE_URI = "http://appgen.sourceforge.net/appgen-mapping";
 	public static final String XSI_SCHEMA_LOCATION = "xsi:schemaLocation";
-	public static final String SCHEMA_LOCATION = "http://appgen.sourceforge.net/schema/appgen-mapping-0.0.2.xsd";
+	public static final String SCHEMA_LOCATION = "http://appgen.sourceforge.net/schema/appgen-mapping-1.0.0.xsd";
 
 	private MappingData mappingData;
 	
@@ -176,29 +172,13 @@ public class XmlData {
 		
 		Element element = document.createElement(CONNECTION_INFORMATION_TAG_NAME);
 
-		Element databaseType = document.createElement(DATABASE_TYPE_TAG_NAME);
-		databaseType.appendChild(document.createTextNode(connectionInformation.getDatabaseType() == null ? "" : connectionInformation.getDatabaseType()));
-		element.appendChild(databaseType);
+		Element databaseName = document.createElement(DATABASE_NAME_TAG_NAME);
+		databaseName.appendChild(document.createTextNode(connectionInformation.getName() == null ? "" : connectionInformation.getName()));
+		element.appendChild(databaseName);
 
-		Element url = document.createElement(URL_TAG_NAME);
-		url.appendChild(document.createTextNode(connectionInformation.getUrl() == null ? "" : connectionInformation.getUrl()));
-		element.appendChild(url);
-
-		Element user = document.createElement(USER_TAG_NAME);
-		user.appendChild(document.createTextNode(connectionInformation.getUser() == null ? "" : connectionInformation.getUser()));
-		element.appendChild(user);
-
-		Element password = document.createElement(PASSWORD_TAG_NAME);
-		password.appendChild(document.createTextNode(connectionInformation.getPassword() == null ? "" : connectionInformation.getPassword()));
-		element.appendChild(password);
-
-		Element driverFile = document.createElement(DRIVER_FILE_TAG_NAME);
-		driverFile.appendChild(document.createTextNode(connectionInformation.getDriverFile() == null ? "" : connectionInformation.getDriverFile().getPath()));
-		element.appendChild(driverFile);
-
-		Element driverClassName = document.createElement(DRIVER_CLASS_NAME_TAG_NAME);
-		driverClassName.appendChild(document.createTextNode(connectionInformation.getDriverClassName() == null ? "" : connectionInformation.getDriverClassName()));
-		element.appendChild(driverClassName);
+		Element databaseSchema = document.createElement(DATABASE_SCHEMA_TAG_NAME);
+		databaseSchema.appendChild(document.createTextNode(connectionInformation.getSchema() == null ? "" : connectionInformation.getSchema()));
+		element.appendChild(databaseSchema);
 
 		return element;
 	}
@@ -253,7 +233,7 @@ public class XmlData {
 
 			fieldElement.setAttribute(COLUMN_NAME_ATTR_NAME, field.getColumnName() == null ? "" : field.getColumnName());
 			fieldElement.setAttribute(COLUMN_TYPE_ATTR_NAME, field.getColumnType() == null ? "" : field.getColumnType());
-			fieldElement.setAttribute(COLUMN_LENGTH_ATTR_NAME, String.valueOf(field.getColumnLength()));
+			fieldElement.setAttribute(COLUMN_LENGTH_ATTR_NAME, String.valueOf(field.getColumnSize()));
 			fieldElement.setAttribute(PK_POSITION_ATTR_NAME, String.valueOf(field.getPkPosition()));
 			fieldElement.setAttribute(LOB_ATTR_NAME, String.valueOf(field.isLob()));
 			fieldElement.setAttribute(NULLABLE_ATTR_NAME, String.valueOf(field.isNullable()));
@@ -305,23 +285,11 @@ public class XmlData {
 	private ConnectionInformation parseConnectionInformationElement(Element connectionInformaitonElement) {
 		ConnectionInformation connectionInformation = new ConnectionInformation();
 
-		String databaseType = connectionInformaitonElement.getElementsByTagName(XmlData.DATABASE_TYPE_TAG_NAME).item(0).getTextContent();
-		String url = connectionInformaitonElement.getElementsByTagName(XmlData.URL_TAG_NAME).item(0).getTextContent();
-		String user = connectionInformaitonElement.getElementsByTagName(XmlData.USER_TAG_NAME).item(0).getTextContent();
-		String password = connectionInformaitonElement.getElementsByTagName(XmlData.PASSWORD_TAG_NAME).item(0).getTextContent();
-		String driverFilePath = connectionInformaitonElement.getElementsByTagName(XmlData.DRIVER_FILE_TAG_NAME).item(0).getTextContent();
-		File driverFile = null;
-		if (driverFilePath != null && driverFilePath.length() > 0) {
-			driverFile = new File(driverFilePath);
-		}
-		String driverClassName = connectionInformaitonElement.getElementsByTagName(XmlData.DRIVER_CLASS_NAME_TAG_NAME).item(0).getTextContent();
+		String databaseName = connectionInformaitonElement.getElementsByTagName(XmlData.DATABASE_NAME_TAG_NAME).item(0).getTextContent();
+		String databaseSchema = connectionInformaitonElement.getElementsByTagName(XmlData.DATABASE_SCHEMA_TAG_NAME).item(0).getTextContent();
 
-		connectionInformation.setDatabaseType(databaseType);
-		connectionInformation.setUrl(url);
-		connectionInformation.setUser(user);
-		connectionInformation.setPassword(password);
-		connectionInformation.setDriverFile(driverFile);
-		connectionInformation.setDriverClassName(driverClassName);
+		connectionInformation.setName(databaseName);
+		connectionInformation.setSchema(databaseSchema);
 
 		return connectionInformation;
 	}
@@ -400,7 +368,7 @@ public class XmlData {
 
 			field.setColumnName(columnName);
 			field.setColumnType(columnType);
-			field.setColumnLength(columnLength);
+			field.setColumnSize(columnLength);
 			field.setPkPosition(pkPosition);
 			field.setLob(lob);
 			field.setNullable(nullable);

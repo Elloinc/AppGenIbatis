@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package net.sourceforge.appgen.connector;
+package net.sourceforge.appgen.databinding;
 
-import net.sourceforge.appgen.model.ConnectionInformation;
+import org.eclipse.core.databinding.validation.IValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.IStatus;
 
 /**
  * @author Byeongkil Woo
  */
-public class JdbcConnectorFactory {
+public class DatabaseSchemaValidator implements IValidator {
 
-	public static JdbcConnector createConnector(ConnectionInformation connectionInformation) {
-		if (connectionInformation.getDatabaseType().equals(ConnectionInformation.DATABASE_TYPE_ORACLE)) {
-			return new OracleConnector(connectionInformation);
+	public IStatus validate(Object value) {
+		if (value instanceof String) {
+			String s = (String) value;
+			
+			if (s.length() == 0) {
+				return ValidationStatus.error("Select the schema.");
+			}
+			
+			return ValidationStatus.OK_STATUS;
+		} else {
+			throw new RuntimeException("Not supposed to be called for non-strings.");
 		}
-		
-		if (connectionInformation.getDatabaseType().equals(ConnectionInformation.DATABASE_TYPE_MYSQL)) {
-			return new MySqlConnector(connectionInformation);
-		}
-		
-		throw new RuntimeException("Not suppoerted database type: " + connectionInformation.getDatabaseType());
 	}
-	
+
 }

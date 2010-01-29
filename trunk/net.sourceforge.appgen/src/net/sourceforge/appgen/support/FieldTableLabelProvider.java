@@ -65,7 +65,7 @@ public class FieldTableLabelProvider extends LabelProvider implements ITableLabe
 		case 2:
 			return field.getColumnType();
 		case 3:
-			return String.valueOf(field.getColumnLength());
+			return String.valueOf(field.getColumnSize());
 		case 4:
 			return field.getPkPosition() <= 0 ? "" : String.valueOf(field.getPkPosition());
 		case 5:

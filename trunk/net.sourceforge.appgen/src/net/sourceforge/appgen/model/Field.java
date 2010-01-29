@@ -53,7 +53,7 @@ public class Field extends ValueModifyModel implements Serializable {
 
 	private boolean create;
 
-	private int columnLength;
+	private int columnSize;
 
 	private int pkPosition;
 	
@@ -219,7 +219,7 @@ public class Field extends ValueModifyModel implements Serializable {
 	}
 	
 	public boolean isValidColumnLength() {
-		return getColumnLength() >= 0;
+		return getColumnSize() >= 0;
 	}
 	
 	public boolean isValidNullable() {
@@ -278,7 +278,7 @@ public class Field extends ValueModifyModel implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + columnLength;
+		result = prime * result + columnSize;
 		result = prime * result + ((columnName == null) ? 0 : columnName.hashCode());
 		result = prime * result + ((columnType == null) ? 0 : columnType.hashCode());
 		result = prime * result + (create ? 1231 : 1237);
@@ -299,7 +299,7 @@ public class Field extends ValueModifyModel implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		if (columnLength != other.columnLength)
+		if (columnSize != other.columnSize)
 			return false;
 		if (columnName == null) {
 			if (other.columnName != null)
@@ -386,12 +386,12 @@ public class Field extends ValueModifyModel implements Serializable {
 		valueModified();
 	}
 
-	public int getColumnLength() {
-		return columnLength;
+	public int getColumnSize() {
+		return columnSize;
 	}
 
-	public void setColumnLength(int columnLength) {
-		this.columnLength = columnLength;
+	public void setColumnSize(int columnLength) {
+		this.columnSize = columnLength;
 		
 		valueModified();
 	}
