@@ -48,12 +48,8 @@ public class XmlDataTest {
 
 	private ConnectionInformation createConnectionInformation() {
 		ConnectionInformation connectionInformation = new ConnectionInformation();
-		connectionInformation.setDatabaseType(ConnectionInformation.DATABASE_TYPE_ORACLE);
-		connectionInformation.setUrl("jdbc:oracle:thin:@127.0.0.1:1521:SID");
-		connectionInformation.setUser("sa");
-		connectionInformation.setPassword("1234&<>");
-		connectionInformation.setDriverFile(null);
-		connectionInformation.setDriverClassName("oracle.jdbc.OracleDriver");
+		connectionInformation.setName("TEST_DB");
+		connectionInformation.setSchema("TEST_SCHEMA");
 		
 		return connectionInformation;
 	}
@@ -84,17 +80,17 @@ public class XmlDataTest {
 				switch (j) {
 				case 0:
 					field.setColumnType("NUMBER");
-					field.setColumnLength(10);
+					field.setColumnSize(10);
 					field.setFieldType("int");
 					break;
 				case 1:
 					field.setColumnType("DATE");
-					field.setColumnLength(8);
+					field.setColumnSize(8);
 					field.setFieldType("java.util.Date");
 					break;
 				default:
 					field.setColumnType("VARCHAR2");
-					field.setColumnLength(20);
+					field.setColumnSize(20);
 					field.setFieldType("java.lang.String");
 				}
 
@@ -143,7 +139,7 @@ public class XmlDataTest {
 		Assert.assertEquals(XmlData.ROOT_ELEMENT_TAG_NAME, root.getTagName());
 
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XSD_NAMESPACE_URI);
-		Schema schema = schemaFactory.newSchema(ClassLoader.getSystemResource("net/sourceforge/appgen/xml/appgen-mapping-0.0.2.xsd"));
+		Schema schema = schemaFactory.newSchema(ClassLoader.getSystemResource("net/sourceforge/appgen/xml/appgen-mapping-1.0.0.xsd"));
 		
 		Validator validator = schema.newValidator();
 		validator.validate(new StreamSource(new FileInputStream(file)));

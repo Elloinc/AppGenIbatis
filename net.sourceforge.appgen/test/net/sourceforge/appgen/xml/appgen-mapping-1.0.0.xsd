@@ -12,27 +12,13 @@
 	<xsd:element name="connectionInformation">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="databaseType" />
-				<xsd:element ref="url" />
-				<xsd:element ref="user" />
-				<xsd:element ref="password" />
-				<xsd:element ref="driverFile" />
-				<xsd:element ref="driverClassName" />
+				<xsd:element ref="databaseName" />
+				<xsd:element ref="databaseSchema" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-	<xsd:element name="databaseType" type="databaseType" />
-	<xsd:simpleType name="databaseType">
-		<xsd:restriction base="xsd:NMTOKEN">
-			<xsd:enumeration value="Oracle" />
-			<xsd:enumeration value="MySql" />
-		</xsd:restriction>
-	</xsd:simpleType>
-	<xsd:element name="url" type="xsd:string" />
-	<xsd:element name="user" type="xsd:string" />
-	<xsd:element name="password" type="xsd:string" />
-	<xsd:element name="driverFile" type="xsd:string" />
-	<xsd:element name="driverClassName" type="xsd:string" />
+	<xsd:element name="databaseName" type="xsd:string" />
+	<xsd:element name="databaseSchema" type="xsd:string" />
 	<xsd:element name="generationInformation">
 		<xsd:complexType>
 			<xsd:sequence>
