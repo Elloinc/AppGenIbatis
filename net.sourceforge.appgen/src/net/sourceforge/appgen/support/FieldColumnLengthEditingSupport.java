@@ -52,7 +52,7 @@ public class FieldColumnLengthEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Field field = (Field) element;
 		
-		return String.valueOf(field.getColumnLength());
+		return String.valueOf(field.getColumnSize());
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class FieldColumnLengthEditingSupport extends EditingSupport {
 		try {
 			int columnLength = Integer.parseInt(String.valueOf(value));
 			
-			field.setColumnLength(columnLength);
+			field.setColumnSize(columnLength);
 		} catch (NumberFormatException e) {
 		}
 

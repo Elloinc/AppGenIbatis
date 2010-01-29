@@ -18,6 +18,9 @@ package net.sourceforge.appgen.model;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Properties;
+
+import net.sourceforge.appgen.connector.ProfileConnector;
 
 /**
  * @author Byeongkil Woo
@@ -26,97 +29,80 @@ public class ConnectionInformation extends ValueModifyModel implements Serializa
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String DATABASE_TYPE_ORACLE = "Oracle";
+	private String name;
 
-	public static final String DATABASE_TYPE_MYSQL = "MySql";
-	
-	public static final String DEFAULT_CONNECTION_URL_ORACLE = "jdbc:oracle:thin:@127.0.0.1:1521:YOURDATABASE";
-	
-	public static final String DEFAULT_CONNECTION_URL_MYSQL = "jdbc:mysql://127.0.0.1:3306/yourdatabase?characterEncoding=utf-8";
-	
-	public static final String DEFAULT_DRIVER_CLASS_NAME_ORACLE = "oracle.jdbc.driver.OracleDriver";
-	
-	public static final String DEFAULT_DRIVER_CLASS_NAME_MYSQL = "com.mysql.jdbc.Driver";
+	private String schema;
 
-	private String databaseType;
-
-	private String url;
-
-	private String user;
-
-	private String password;
-
-	private File driverFile;
-
-	private String driverClassName;
-	
 	public ConnectionInformation() {
 		super();
 	}
-
-	public static String[] getDatabaseTypes() {
-		return new String[] { DATABASE_TYPE_ORACLE, DATABASE_TYPE_MYSQL };
-	}
 	
-	public static String[] getDefaultConnectionUrls() {
-		return new String[] { DEFAULT_CONNECTION_URL_ORACLE, DEFAULT_CONNECTION_URL_MYSQL };
-	}
-	
-	public static String[] getDefaultDriverClassNames() {
-		return new String[] { DEFAULT_DRIVER_CLASS_NAME_ORACLE, DEFAULT_DRIVER_CLASS_NAME_MYSQL };
-	}
-	
-	public static String getDefaultConnectionUrl(String databaseType) {
-		for (int i = 0; i < getDatabaseTypes().length; i++) {
-			String type = getDatabaseTypes()[i];
-			if (type.equals(databaseType)) {
-				return getDefaultConnectionUrls()[i];
-			}
-		}
+	public File getDriverFile() {
+		ProfileConnector profileConnector = new ProfileConnector(this);
 		
-		return null;
+		Properties properties = profileConnector.getBaseProperties();
+		
+		return new File(properties.getProperty("jarList"));
 	}
 	
-	public static String getDefaultDriverClassName(String databaseType) {
-		for (int i = 0; i < getDatabaseTypes().length; i++) {
-			String type = getDatabaseTypes()[i];
-			if (type.equals(databaseType)) {
-				return getDefaultDriverClassNames()[i];
-			}
-		}
+	public String getDriverClassName() {
+		ProfileConnector profileConnector = new ProfileConnector(this);
 		
-		return null;
+		Properties properties = profileConnector.getBaseProperties();
+		
+		return properties.getProperty("org.eclipse.datatools.connectivity.db.driverClass");
+	}
+	
+	public String getUrl() {
+		ProfileConnector profileConnector = new ProfileConnector(this);
+		
+		Properties properties = profileConnector.getBaseProperties();
+		
+		return properties.getProperty("org.eclipse.datatools.connectivity.db.URL");
+	}
+	
+	public String getUser() {
+		ProfileConnector profileConnector = new ProfileConnector(this);
+		
+		Properties properties = profileConnector.getBaseProperties();
+		
+		return properties.getProperty("org.eclipse.datatools.connectivity.db.username");
+	}
+	
+	public String getPassword() {
+		ProfileConnector profileConnector = new ProfileConnector(this);
+		
+		Properties properties = profileConnector.getBaseProperties();
+		
+		return properties.getProperty("org.eclipse.datatools.connectivity.db.password");
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder(super.toString() + "(");
-		builder.append("databaseType='" + databaseType + "'");
-		builder.append(",");
-		builder.append("url='" + url + "'");
-		builder.append(",");
-		builder.append("user='" + user + "'");
-		builder.append(",");
-		builder.append("password='" + "********" + "'");
-		builder.append(",");
-		builder.append("driverFile='" + driverFile + "'");
-		builder.append(",");
-		builder.append("driverClassName='" + driverClassName + "'");
-		builder.append(")");
+	public String getName() {
+		return name;
+	}
 
-		return builder.toString();
+	public void setName(String name) {
+		this.name = name;
+		
+		valueModified();
+	}
+
+	public String getSchema() {
+		return schema;
+	}
+
+	public void setSchema(String schema) {
+		this.schema = schema;
+
+		valueModified();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((databaseType == null) ? 0 : databaseType.hashCode());
-		result = prime * result + ((driverClassName == null) ? 0 : driverClassName.hashCode());
-		result = prime * result + ((driverFile == null) ? 0 : driverFile.hashCode());
-		result = prime * result + ((password == null) ? 0 : password.hashCode());
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((schema == null) ? 0 : schema.hashCode());
 		return result;
 	}
 
@@ -129,99 +115,22 @@ public class ConnectionInformation extends ValueModifyModel implements Serializa
 		if (getClass() != obj.getClass())
 			return false;
 		ConnectionInformation other = (ConnectionInformation) obj;
-		if (databaseType == null) {
-			if (other.databaseType != null)
+		if (name == null) {
+			if (other.name != null)
 				return false;
-		} else if (!databaseType.equals(other.databaseType))
+		} else if (!name.equals(other.name))
 			return false;
-		if (driverClassName == null) {
-			if (other.driverClassName != null)
+		if (schema == null) {
+			if (other.schema != null)
 				return false;
-		} else if (!driverClassName.equals(other.driverClassName))
-			return false;
-		if (driverFile == null) {
-			if (other.driverFile != null)
-				return false;
-		} else if (!driverFile.equals(other.driverFile))
-			return false;
-		if (password == null) {
-			if (other.password != null)
-				return false;
-		} else if (!password.equals(other.password))
-			return false;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
-		if (user == null) {
-			if (other.user != null)
-				return false;
-		} else if (!user.equals(other.user))
+		} else if (!schema.equals(other.schema))
 			return false;
 		return true;
 	}
 
-	public String getDatabaseType() {
-		return databaseType;
-	}
-
-	public void setDatabaseType(String databaseType) {
-		this.databaseType = databaseType;
-		
-		valueModified();
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String connectionUrl) {
-		this.url = connectionUrl;
-		
-		valueModified();
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-		
-		valueModified();
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-		
-		valueModified();
-	}
-
-	public File getDriverFile() {
-		return driverFile;
-	}
-
-	public void setDriverFile(File driverFile) {
-		this.driverFile = driverFile;
-
-		setDriverClassName(this.getDriverClassName());
-		
-		valueModified();
-	}
-
-	public String getDriverClassName() {
-		return driverClassName;
-	}
-
-	public void setDriverClassName(String driverClassName) {
-		this.driverClassName = driverClassName;
-		
-		valueModified();
+	@Override
+	public String toString() {
+		return "ConnectionInformation [name=" + name + ", schema=" + schema + "]";
 	}
 
 }

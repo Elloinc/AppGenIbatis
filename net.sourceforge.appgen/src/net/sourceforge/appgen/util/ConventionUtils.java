@@ -17,8 +17,10 @@
 package net.sourceforge.appgen.util;
 
 import java.io.File;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import net.sourceforge.appgen.converter.FirstCharacterUpperCaseConverter;
@@ -161,4 +163,112 @@ public abstract class ConventionUtils {
 		return null;
 	}
 
+	public static boolean isLobColumn(int dataType) {
+		boolean lob = false;
+		
+		switch (dataType) {
+		case Types.BLOB:
+			lob = true;
+			break;
+		case Types.CLOB:
+			lob = true;
+			break;
+		default:
+			break;
+		}
+		
+		return lob;
+	}
+	
+	public static String getJavaType(int dataType, int columnSize, int decimalDegit) {
+		String fieldType = String.class.getName();
+		
+		switch (dataType) {
+		case Types.ARRAY:
+			break;
+		case Types.BIGINT:
+			fieldType = "long";
+			break;
+		case Types.BINARY:
+			break;
+		case Types.BIT:
+			break;
+		case Types.BLOB:
+			break;
+		case Types.BOOLEAN:
+			fieldType = "boolean";
+			break;
+		case Types.CHAR:
+			break;
+		case Types.CLOB:
+			break;
+		case Types.DATALINK:
+			break;
+		case Types.DATE:
+			fieldType = Date.class.getName();
+			break;
+		case Types.DECIMAL:
+			if (decimalDegit > 0) {
+				fieldType = "double";
+			} else {
+				fieldType = "int";
+			}
+			break;
+		case Types.DISTINCT:
+			break;
+		case Types.DOUBLE:
+			fieldType = "double";
+			break;
+		case Types.FLOAT:
+			fieldType = "float";
+			break;
+		case Types.INTEGER:
+			fieldType = "int";
+			break;
+		case Types.JAVA_OBJECT:
+			break;
+		case Types.LONGVARBINARY:
+			break;
+		case Types.LONGVARCHAR:
+			break;
+		case Types.NULL:
+			break;
+		case Types.NUMERIC:
+			if (decimalDegit > 0) {
+				fieldType = "double";
+			} else {
+				fieldType = "int";
+			}
+			break;
+		case Types.OTHER:
+			break;
+		case Types.REAL:
+			break;
+		case Types.REF:
+			break;
+		case Types.SMALLINT:
+			fieldType = "int";
+			break;
+		case Types.STRUCT:
+			break;
+		case Types.TIME:
+			fieldType = Date.class.getName();
+			break;
+		case Types.TIMESTAMP:
+			fieldType = Date.class.getName();
+			break;
+		case Types.TINYINT:
+			fieldType = "int";
+			break;
+		case Types.VARBINARY:
+			break;
+		case Types.VARCHAR:
+			break;
+		default:
+			break;
+		}
+		
+		return fieldType;
+	}
+	
 }

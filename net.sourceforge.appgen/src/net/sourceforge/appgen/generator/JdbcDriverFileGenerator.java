@@ -47,6 +47,7 @@ public class JdbcDriverFileGenerator extends OnceFileGenerator {
 		if (!aleradyGenerate) {
 			aleradyGenerate = true;
 			
+			// TODO:
 			return this.generateFile(entity, connectionInformation.getDriverFile(), getFile(entity));
 		}
 		
@@ -55,6 +56,7 @@ public class JdbcDriverFileGenerator extends OnceFileGenerator {
 	
 	@Override
 	public File getFile(Entity entity) {
+		// TODO:
 		return new File(getDirectory(), connectionInformation.getDriverFile().getName());
 	}
 
