@@ -51,6 +51,7 @@ import net.sourceforge.appgen.generator.MethodInvocationInfoInterceptorFileGener
 import net.sourceforge.appgen.generator.MethodInvocationLoggerFileGenerator;
 import net.sourceforge.appgen.generator.MethodInvocationLoggingAdviceFileGenerator;
 import net.sourceforge.appgen.generator.PagingFileGenerator;
+import net.sourceforge.appgen.generator.PomFileGenerator;
 import net.sourceforge.appgen.generator.ResourcePropertiesFileGenerator;
 import net.sourceforge.appgen.generator.ServiceClassFileGenerator;
 import net.sourceforge.appgen.generator.ServiceInterfaceFileGenerator;
@@ -116,6 +117,7 @@ public class GenerateFileJob extends Job {
 			GenerationInformation generationInformation = mappingData.getGenerationInformation();
 			List<Entity> entityList = mappingData.getEntityList();
 
+			fileGeneratorList.add(new PomFileGenerator(generationInformation));
 			fileGeneratorList.add(new WebXmlFileGenerator(generationInformation));
 			fileGeneratorList.add(new ServletXmlFileGenerator(generationInformation, entityList));
 			fileGeneratorList.add(new SqlMapConfigFileGenerator(generationInformation, entityList));
