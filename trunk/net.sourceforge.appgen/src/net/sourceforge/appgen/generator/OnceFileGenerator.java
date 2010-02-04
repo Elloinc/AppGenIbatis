@@ -7,7 +7,7 @@ import net.sourceforge.appgen.model.GenerationInformation;
 
 public abstract class OnceFileGenerator extends FileGenerator {
 
-	protected boolean aleradyGenerate = false;
+	protected boolean alreadyGenerated = false;
 	
 	public OnceFileGenerator(GenerationInformation generationInformation) {
 		super(generationInformation);
@@ -15,8 +15,8 @@ public abstract class OnceFileGenerator extends FileGenerator {
 	
 	@Override
 	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
+		if (!alreadyGenerated) {
+			alreadyGenerated = true;
 			
 			return super.generate(entity);
 		}
@@ -26,7 +26,7 @@ public abstract class OnceFileGenerator extends FileGenerator {
 	
 	@Override
 	public boolean existFile(Entity entity) {
-		if (!aleradyGenerate) {
+		if (!alreadyGenerated) {
 			return super.existFile(entity);
 		}
 		

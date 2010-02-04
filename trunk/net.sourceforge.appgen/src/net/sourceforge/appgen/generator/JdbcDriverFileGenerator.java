@@ -44,8 +44,8 @@ public class JdbcDriverFileGenerator extends OnceFileGenerator {
 	
 	@Override
 	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
+		if (!alreadyGenerated) {
+			alreadyGenerated = true;
 			
 			// TODO:
 			return this.generateFile(entity, connectionInformation.getDriverFile(), getFile(entity));
