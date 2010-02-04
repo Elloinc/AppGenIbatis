@@ -32,11 +32,17 @@ public abstract class DirectoryGenerator extends OnceFileGenerator {
 	
 	@Override
 	public File generate(Entity entity) throws Exception {
+		if (alreadyGenerated) {
+			return null;
+		}
+		
 		File dir = getDirectory();
 		
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
+		
+		alreadyGenerated = true;
 		
 		return dir;
 	}

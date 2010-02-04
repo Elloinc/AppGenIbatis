@@ -75,8 +75,8 @@ public class JdbcPropertiesFileGenerator extends OnceFileGenerator {
 	
 	@Override
 	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
+		if (!alreadyGenerated) {
+			alreadyGenerated = true;
 			
 			return this.generateFile(entity, getTemplate(), getFile(entity));
 		}

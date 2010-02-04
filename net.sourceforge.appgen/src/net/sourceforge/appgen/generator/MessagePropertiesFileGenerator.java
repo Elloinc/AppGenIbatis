@@ -41,8 +41,8 @@ public class MessagePropertiesFileGenerator extends OnceFileGenerator {
 	
 	@Override
 	public File generate(Entity entity) throws Exception {
-		if (!aleradyGenerate) {
-			aleradyGenerate = true;
+		if (!alreadyGenerated) {
+			alreadyGenerated = true;
 			
 			return this.generateFile(entity, new File(templateDir.getPath(), TEMPLATE), getFile(entity));
 		}
