@@ -98,9 +98,9 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.wst.sse.ui.StructuredTextEditor;
 
 /**
  * Mpping file editor.
@@ -120,7 +120,7 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	
 	private MappingData mappingData;
 	
-	private TextEditor textEditor;
+	private StructuredTextEditor textEditor;
 	
 	private Entity currentEntity;
 	private boolean allEntitySelection = false;
@@ -753,10 +753,6 @@ public class MappingDataEditor extends MultiPageEditorPart {
 					
 					GenerateFileJob GenerateFileAction = new GenerateFileJob(mappingData, MappingDataEditor.this, "Generate file...");
 					GenerateFileAction.schedule();
-				
-					// TODO:
-					// RefreshAction refreshAction = new RefreshAction(getEditorSite());
-					// refreshAction.refreshAll();
 				} finally {
 					contentComponent.setEnabled(true);
 				}
@@ -1112,7 +1108,8 @@ public class MappingDataEditor extends MultiPageEditorPart {
 	
 	public void createSourcePage() {
 		try {
-			textEditor = new TextEditor();
+			textEditor = new StructuredTextEditor();
+			
 			int index = addPage(textEditor, getEditorInput());
 			
 			setPageText(index, "Source");
