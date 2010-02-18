@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Appgen Mapping Editor
 Bundle-SymbolicName: net.sourceforge.appgen;singleton:=true
-Bundle-Version: 1.2.1.qualifier
+Bundle-Version: 1.2.2.qualifier
 Bundle-Activator: net.sourceforge.appgen.Activator
 Bundle-Vendor: Appgen
 Require-Bundle: org.eclipse.ui,
@@ -18,11 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.datatools.connectivity,
  org.eclipse.datatools.connectivity.db.generic.ui,
  org.eclipse.datatools.connectivity.ui,
- org.eclipse.wst.sse.core,
  org.eclipse.wst.sse.ui,
- org.eclipse.wst.xml.core,
- org.eclipse.wst.xml.ui,
- org.eclipse.wst.common.ui
+ org.eclipse.wst.xml.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-LazyStart: true
 Bundle-ClassPath: .,
