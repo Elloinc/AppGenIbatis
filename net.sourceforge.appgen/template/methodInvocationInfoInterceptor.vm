@@ -80,7 +80,9 @@ public class MethodInvocationInfoInterceptor implements HandlerInterceptor {
 	}
 
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		addMessage(modelAndView.toString());
+		if (modelAndView != null) {
+			addMessage(modelAndView.toString());
+		}
 	}
 
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
